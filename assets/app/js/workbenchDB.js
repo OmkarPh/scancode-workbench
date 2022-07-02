@@ -12,7 +12,7 @@
  # CONDITIONS OF ANY KIND, either express or implied. See the License for the
  # specific language governing permissions and limitations under the License.
  #
- */
+*/
 
 const sqlite3 = require('sqlite3');
 const Sequelize = require('sequelize');
@@ -88,6 +88,7 @@ class WorkbenchDB {
 
 
 
+  
   // Uses the files table to do a findOne query
   findOne(query) {
     query = $.extend(query, { include: this.db.fileIncludes });
@@ -157,10 +158,13 @@ class WorkbenchDB {
     const restrictedPromise = this.db.LicensePolicy.findAll({where: {label: 'Restricted License'}, attributes: ['fileId']})
       .then((policies) => policies.map((policy) => policy.fileId));
 
+    console.log('udpated query', query);
+
     return Promise.all([pkgPromise, approvedPromise, prohibitedPromise, recommendedPromise, restrictedPromise]).then((promises) => this.sync
       .then((db) => db.File.findAll(query))
       .then((files) => {
-        return files.map((file) => {
+        console.log('Got files', files);
+        const result = files.map((file) => {
           let file_name;
           if (!file.name) {
             file_name = path.basename(file.path);
@@ -175,6 +179,9 @@ class WorkbenchDB {
             children: file.type === 'directory'
           };
         });
+        console.log('ftree', result);
+        console.log('ftree', result.map((file) => ({ type: file.type, text: file.text})));
+        return result;
       }));
   }
   
@@ -351,10 +358,13 @@ class WorkbenchDB {
         file.headerId = headerId;
       });
       return this.db.File.bulkCreate(files, options)
-        .then(() => this.db.License.bulkCreate(this._addExtraFields(files, 'licenses'), options))
-        .then(() => this.db.LicenseExpression.bulkCreate(this._addExtraFields(files, 'license_expressions'), options))
+        .then(() => console.log('Going good after bulkcreate'))
+        .then(() => console.log('License_policy data:', this._addExtraFields(files, 'license_policy')))
         .then(() => this.db.LicensePolicy.bulkCreate(this._addExtraFields(files, 'license_policy'), options))
         .then(() => this.db.Copyright.bulkCreate(this._addExtraFields(files, 'copyrights'), options))
+        .then(() => console.log('Copyrights data:', this._addExtraFields(files, 'copyrights')))
+        .then(() => this.db.License.bulkCreate(this._addExtraFields(files, 'licenses'), options))
+        .then(() => this.db.LicenseExpression.bulkCreate(this._addExtraFields(files, 'license_expressions'), options))
         .then(() => this.db.Package.bulkCreate(this._addExtraFields(files, 'packages'), options))
         .then(() => this.db.Email.bulkCreate(this._addExtraFields(files, 'emails'), options))
         .then(() => this.db.Url.bulkCreate(this._addExtraFields(files, 'urls'), options))

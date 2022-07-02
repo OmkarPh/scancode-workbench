@@ -105,6 +105,12 @@ class LicenseDashboard extends Controller {
     this.totalSPDXProgressbar.showIndeterminate();
     this.db().sync
       .then((db) => db.File.findAll({where: {path: {$like: `${this.selectedPath()}%`}}}))
+      .then((files) => {
+        console.log('all files', files);
+        const fileIds = files.map((val) => val.id);
+        console.log('all file ids', fileIds);
+        return files;
+      })
       .then((files) => files.map((val) => val.id))
       .then((fileIds) => this.db().sync
         .then((db) => db.License.findAll({where: {fileId: fileIds}}))
@@ -113,6 +119,9 @@ class LicenseDashboard extends Controller {
           const licenseFileIds = licenses.map((val) => val.fileId);
           const spdxKeys = licenses.map((val) => val.spdx_license_key);
           this.totalLicenses.text(new Set(licenseKeys).size);
+          console.log('all licenses', licenses);
+          console.log('license fileIds', licenseFileIds);
+          console.log('license fileId set', new Set(licenseFileIds));
           this.totalFilesWithLicense.text(new Set(licenseFileIds).size);
           this.totalSPDX.text(new Set(spdxKeys).size);
           this.totalLicensesProgressbar.hide();
@@ -141,6 +150,8 @@ class LicenseDashboard extends Controller {
         .then((keys) => Utils.limitChartData(keys, LEGEND_LIMIT)));
     
     // Get license policy data
+    console.log('Selected path:', this.selectedPath(), this._selectedPath);
+    console.log({$like: `${this.selectedPath()}%`});
     this.licensePolicyChartData = this.db().sync
       .then((db) => db.File.findAll({where: {path: {$like: `${this.selectedPath()}%`}}}))
       .then((files) => files.map((val) => val.id))
@@ -159,14 +170,17 @@ class LicenseDashboard extends Controller {
     // Display license expression key chart
     this.licenseExpressionChartProgressbar.showIndeterminate();
     this.licenseExpressionChartData
-      .then((data) => this.licenseExpressionChart.load({
-        columns: data,
-        unload: true,
-        done: () => {
-          this.licenseExpressionChartProgressbar.hide();
-          this.licenseExpressionChart.flush();
-        }
-      }));
+      .then((data) => {
+        console.log('License exp data:', data);
+        this.licenseExpressionChart.load({
+          columns: data,
+          unload: true,
+          done: () => {
+            this.licenseExpressionChartProgressbar.hide();
+            this.licenseExpressionChart.flush();
+          }
+        });
+      });
 
     // Display license key chart
     this.licenseKeyChartProgressbar.showIndeterminate();

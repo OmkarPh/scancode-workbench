@@ -14,7 +14,7 @@ module.exports = {
   module: {
     rules,
   },
-  // target: 'node',
+  target: "electron-renderer",
   externals: {
     assert: 'commonjs2 assert',
     child_process: 'commonjs2 child_process',
@@ -25,6 +25,7 @@ module.exports = {
     http: 'commonjs2 http',
     https: 'commonjs2 https',
     os: 'commonjs2 os',
+    sqlite3: 'commonjs sqlite3',
     // sqlite3: 'commonjs2 sqlite3',
     stream: 'commonjs2 stream',
     timers: 'commonjs2 timers',

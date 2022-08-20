@@ -15,8 +15,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@master
-      with:
-        ref: electron
     - uses: actions/setup-node@master
       with:
         node-version: 16.13.0

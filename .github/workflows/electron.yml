@@ -16,6 +16,9 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - name: Check if Git tag exists
+        id: check_tag
+        run: echo "::set-output name=TAG::$(git tag --points-at ${{github.sha}})"
       - name: Create Release
         id: create_release_tag
         uses: softprops/action-gh-release@v1

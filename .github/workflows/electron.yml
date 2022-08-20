@@ -12,23 +12,9 @@ on:
 # this is where the magic happens, each job happens in parallel btw
 
 jobs:
-  # create_release:
-  #   name: Create Release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Create Release
-  #       id: create_release
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         name: ${{ github.ref_name }}
-  #         draft: false
-  #         prerelease: false
-  #         generate_release_notes: false
-
-  build_on_mac:
-    name: Build Mac Release
-    runs-on: macOS-latest
-    # needs: create_release
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
     steps:
       - name: Create Release
         id: create_release
@@ -38,10 +24,14 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
-      - name: "Checkout code"
-        uses: actions/checkout@master
-      - name: "Setup Python"
-        uses: actions/setup-python@v4
+
+  build_on_mac:
+    name: Build Mac Release
+    runs-on: macOS-latest
+    needs: create_release
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
@@ -60,6 +50,5 @@ jobs:
        - name: Upload Mac release assets
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ create_release.outputs.tag-name }}
-          # tag_name: ${{ needs.create_release.outputs.tag-name }}
+          tag_name: ${{ needs.create_release.outputs.tag-name }}
           files: dist/*

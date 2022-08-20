@@ -20,7 +20,7 @@ jobs:
     - uses: actions/setup-node@master
       with:
         node-version: 16.13.0
-    - name: see directory in dist
+    - name: see files in dist (must be empty before build)
       run: ls ./dist
     - name: Install dependencies
       run: npm install
@@ -28,7 +28,7 @@ jobs:
       env:
         ELECTRON: true
       run: npm run package
-    - name: see directory in dist
+    - name: see directory in dist (must have executable app after package / build)
       run: ls ./dist
     - uses: lucyio/upload-to-release@master
       with:

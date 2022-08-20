@@ -12,12 +12,12 @@ on:
 
 jobs:
   create_release:
-    runs-on: ubuntu-latest
-    uses: ncipollo/release-action@v1
-    with:
-      token: ${{ secrets.TOKEN }}
-      replacesArtifacts: false
-      allowUpdates: true
+    steps:
+      - uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.TOKEN }}
+        replacesArtifacts: false
+        allowUpdates: true
 
     # name: Create Github Release
     # if: contains(github.ref, 'tags/v')

@@ -20,11 +20,38 @@ jobs:
         id: create_release_tag
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ github.ref_name }}
           tag_name: test4.0.0     # @TODO - Find a way to get this from github.something
           draft: false
           prerelease: false
           generate_release_notes: false
+
+  build_on_linux:
+    needs: create_release_tag
+    name: Build Linux Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - name: "Setup Nodejs"
+        uses: actions/setup-node@master
+        with:
+          node-version: 16.13.0
+      - name: Install dependencies
+        run: npm install
+      - name: Build package on Linux
+        env:
+          ELECTRON: true
+        run: npm run publish
+      - name: see directory in dist (must have tarball of application after publishing the build)
+        run: ls ./dist
+      - name: Upload Linux release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: test4.0.0     # @TODO - Find a way to get this from github.something
+          files: dist/*
 
   build_on_mac:
     needs: create_release_tag
@@ -35,7 +62,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          cache: 'pip' # caching pip dependencies
+          cache: 'pip'
       - name: "Setup Nodejs"
         uses: actions/setup-node@master
         with:
@@ -53,4 +80,31 @@ jobs:
         with:
           tag_name: test4.0.0     # @TODO - Find a way to get this from github.something
           files: dist/*
-          name: ${{ github.ref_name }}
+
+  build_on_win:
+    needs: create_release_tag
+    name: Build Windows Release
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - name: "Setup Nodejs"
+        uses: actions/setup-node@master
+        with:
+          node-version: 16.13.0
+      - name: Install dependencies
+        run: npm install
+      - name: Build package on windows 2019
+        env:
+          ELECTRON: true
+        run: npm run publish
+      - name: see directory in dist (must have tarball of application after publishing the build)
+        run: ls ./dist
+      - name: Upload Mac release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: test4.0.0     # @TODO - Find a way to get this from github.something
+          files: dist/*

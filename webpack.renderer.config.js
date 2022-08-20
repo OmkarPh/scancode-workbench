@@ -1,5 +1,4 @@
-// import rules from './webpack.rules';
-// import plugins from './webpack.plugins';
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 const rules = require('./webpack.rules');
 const plugins = require('./webpack.plugins');

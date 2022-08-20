@@ -2,44 +2,59 @@
   "appId": "com.electron.scancode-workbench",
   "productName": "ScanCode Workbench",
   "directories": {
-      "app": ".",
-      "output": "out",
-      "buildResources": "build-res"
+    "app": ".",
+    "output": "out",
+    "buildResources": "build-res"
   },
   "files": [
-      "package.json",
-      "app/**/*",
-      "node_modules"
+    "package.json",
+    "src/**/*",
+    "app/**/*",
+    "node_modules",
+    "./main.tsx"
   ],
-  "dmg": {
-      "background": null,
-      "backgroundColor": "#ffffff",
-      "window": {
-          "width": "400",
-          "height": "300"
-      },
-      "contents": [
-          {
-              "x": 100,
-              "y": 100
-          },
-          {
-              "x": 300,
-              "y": 100,
-              "type": "link",
-              "path": "/Applications"
-          }
-      ]
+  "extraMetadata": {
+    "main": "./src/main.ts"
   },
   "mac": {
+    "target": {
       "target": "dmg",
-      "category": "public.app-category.developer-tools"
+      "arch": "universal"
+    }
+  },
+  "dmg": {
+    "background": null,
+    "backgroundColor": "#ffffff",
+    "window": {
+      "width": "400",
+      "height": "300"
     },
+    "contents": [
+      {
+        "x": 100,
+        "y": 100
+      },
+      {
+        "x": 300,
+        "y": 100,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  },
   "win": {
-      "target": "nsis"
+    "target": {
+      "target": "nsis",
+      "arch": ["x64", "ia32"]
+    }
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
   },
   "linux": {
-      "target": "AppImage",
-      "category": "Utility"
-  }
+    "target": "AppImage",
+    "category": "Utility"
+  },
+  "buildVersion": "1"
 }

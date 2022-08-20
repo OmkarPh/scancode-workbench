@@ -5,12 +5,30 @@ name: CD
 on:
   push:
     branches:
-    # this will run on the electron branch
       - build/electron-builder
+    tags:
+      - 'v[0-9]+.*'
 
 # this is where the magic happens, each job happens in parallel btw
 
 jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
   # create_release:
   #   runs-on: ubuntu-latest
   #   - uses: ncipollo/release-action@v1
@@ -19,59 +37,81 @@ jobs:
   #       replacesArtifacts: false
   #       allowUpdates: true
 
-    name: Create Github Release
-    if: contains(github.ref, 'tags/v')
-    # needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1.0.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Output Release URL File
-      run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
-    - name: Save Release URL File for publish
-      uses: actions/upload-artifact@v1
-      with:
-        name: release_url
-        path: release_url.txt
+  # create_release:
+  #   name: Create Github Release
+  #   if: contains(github.ref, 'tags/v')
+  #   # needs: [test]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Create Release
+  #     id: create_release
+  #     uses: actions/create-release@v1.0.0
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     with:
+  #       tag_name: ${{ github.ref }}
+  #       release_name: Release ${{ github.ref }}
+  #       draft: false
+  #       prerelease: false
+  #   - name: Output Release URL File
+  #     run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+  #   - name: Save Release URL File for publish
+  #     uses: actions/upload-artifact@v1
+  #     with:
+  #       name: release_url
+  #       path: release_url.txt
 
   build_on_mac:
     runs-on: macOS-latest
+    needs: create_release # we need to know the upload URL
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        cache: 'pip' # caching pip dependencies
-    - uses: actions/setup-node@master
-      with:
-        node-version: 16.13.0
-    - name: Install dependencies
-      run: npm install
-    - name: Build on MacOS
-      env:
-        ELECTRON: true
-      run: npm run publish
-    - name: see directory in dist (must have tarball of application after publishing the build)
-      run: ls ./dist
-    - name: Update mac release file in existing Github Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "dist/*"
-        replacesArtifacts: false
-        token: ${{ secrets.TOKEN }}
-        allowUpdates: true
-    # - uses: lucyio/upload-to-release@master
-    #   with:
-    #     name: lucyio/electron
-    #     path: ./dist
-    #     action: unpublished
-    #     release_id: 0.x.x
-    #     release-repo: lucyio/electron
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16.13.0
+      - name: Install dependencies
+        run: npm install
+      - name: Build on MacOS
+        env:
+          ELECTRON: true
+        run: npm run publish
+      - name: see directory in dist (must have tarball of application after publishing the build)
+        run: ls ./dist
+       - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          # This is how it will be named on the release page. Put whatever name
+          # you like, remember that they need to be different for each platform.
+          # You can choose any build matrix parameters.
+          # asset_name: program-name-${{ matrix.config.os }}
+
+          # The path to the file you want to upload.
+          asset_path: ./dist/*
+
+          # probably you will need to change it, but most likely you are
+          # uploading a binary file
+          # asset_content_type: application/gzip
+
+
+      # - name: Update mac release file in existing Github Release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "dist/*"
+      #     replacesArtifacts: false
+      #     token: ${{ secrets.TOKEN }}
+      #     allowUpdates: true
+      # OR
+      # - uses: lucyio/upload-to-release@master
+      #   with:
+      #     name: lucyio/electron
+      #     path: ./dist
+      #     action: unpublished
+      #     release_id: 0.x.x
+      #     release-repo: lucyio/electron

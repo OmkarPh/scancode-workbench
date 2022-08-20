@@ -9,7 +9,7 @@ on:
     tags:
       - 'v[0-9]+.*'
 
-# this is where the magic happens, each job happens in parallel btw
+# this is where the magic happens, each job happens in parallel btw ;)
 
 jobs:
   create_release_tag:

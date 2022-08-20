@@ -11,7 +11,7 @@ on:
 # this is where the magic happens, each job happens in parallel btw
 
 jobs:
-  release:
+  create_release:
     - name: Create Github Release
     uses: ncipollo/release-action@v1
     with:

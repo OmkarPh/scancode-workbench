@@ -1,5 +1,5 @@
 # name of your github action
-name: CI
+name: CD
 
 # this will help you specify where to run 
 on:
@@ -11,10 +11,45 @@ on:
 # this is where the magic happens, each job happens in parallel btw
 
 jobs:
+  release:
+    - name: Create Github Release
+    uses: ncipollo/release-action@v1
+    with:
+      token: ${{ secrets.TOKEN }}
+      replacesArtifacts: false
+      allowUpdates: true
+
+    # name: Create Github Release
+    # if: contains(github.ref, 'tags/v')
+    # # needs: [test]
+    # runs-on: ubuntu-latest
+    # steps:
+    # - name: Create Release
+    #   id: create_release
+    #   uses: actions/create-release@v1.0.0
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     tag_name: ${{ github.ref }}
+    #     release_name: Release ${{ github.ref }}
+    #     draft: false
+    #     prerelease: false
+    # - name: Output Release URL File
+    #   run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+    # - name: Save Release URL File for publish
+    #   uses: actions/upload-artifact@v1
+    #   with:
+    #     name: release_url
+    #     path: release_url.txt
+
   build_on_mac:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip' # caching pip dependencies
     - uses: actions/setup-node@master
       with:
         node-version: 16.13.0
@@ -23,13 +58,20 @@ jobs:
     - name: Build on MacOS
       env:
         ELECTRON: true
-      run: npm run package
-    - name: see directory in dist (must have executable app after package / build)
+      run: npm run publish
+    - name: see directory in dist (must have tarball of application after publishing the build)
       run: ls ./dist
-    - uses: lucyio/upload-to-release@master
+    - name: Update mac release file in existing Github Release
+      uses: ncipollo/release-action@v1
       with:
-        name: lucyio/electron
-        path: ./dist
-        action: unpublished
-        release_id: 0.x.x
-        release-repo: lucyio/electron
+        artifacts: "dist/*"
+        replacesArtifacts: false
+        token: ${{ secrets.TOKEN }}
+        allowUpdates: true
+    # - uses: lucyio/upload-to-release@master
+    #   with:
+    #     name: lucyio/electron
+    #     path: ./dist
+    #     action: unpublished
+    #     release_id: 0.x.x
+    #     release-repo: lucyio/electron

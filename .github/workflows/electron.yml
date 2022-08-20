@@ -24,42 +24,11 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
-  
-  # create_release:
-  #   runs-on: ubuntu-latest
-  #   - uses: ncipollo/release-action@v1
-  #     with:
-  #       token: ${{ secrets.TOKEN }}
-  #       replacesArtifacts: false
-  #       allowUpdates: true
-
-  # create_release:
-  #   name: Create Github Release
-  #   if: contains(github.ref, 'tags/v')
-  #   # needs: [test]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Create Release
-  #     id: create_release
-  #     uses: actions/create-release@v1.0.0
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     with:
-  #       tag_name: ${{ github.ref }}
-  #       release_name: Release ${{ github.ref }}
-  #       draft: false
-  #       prerelease: false
-  #   - name: Output Release URL File
-  #     run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
-  #   - name: Save Release URL File for publish
-  #     uses: actions/upload-artifact@v1
-  #     with:
-  #       name: release_url
-  #       path: release_url.txt
 
   build_on_mac:
+    name: Build Mac Release
     runs-on: macOS-latest
-    needs: create_release # we need to know the upload URL
+    needs: create_release
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v4
@@ -77,23 +46,12 @@ jobs:
         run: npm run publish
       - name: see directory in dist (must have tarball of application after publishing the build)
         run: ls ./dist
-       - name: Upload release assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       - name: Upload Mac release assets
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          # This is how it will be named on the release page. Put whatever name
-          # you like, remember that they need to be different for each platform.
-          # You can choose any build matrix parameters.
-          # asset_name: program-name-${{ matrix.config.os }}
-
-          # The path to the file you want to upload.
-          asset_path: ./dist/*
-
-          # probably you will need to change it, but most likely you are
-          # uploading a binary file
-          # asset_content_type: application/gzip
+          tag_name: ${{ needs.create_release.outputs.tag-name }}
+          files: 'dist/*'
+        
 
 
       # - name: Update mac release file in existing Github Release

@@ -12,6 +12,7 @@ on:
 
 jobs:
   create_release:
+    runs-on: ubuntu-latest
     steps:
       - uses: ncipollo/release-action@v1
       with:

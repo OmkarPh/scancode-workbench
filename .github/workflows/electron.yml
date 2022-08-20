@@ -30,12 +30,15 @@ jobs:
     runs-on: macOS-latest
     needs: create_release
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v4
+      - name: "Actions/Checkout code"
+        uses: actions/checkout@master
+      - name: "Setup Python"
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pip' # caching pip dependencies
-      - uses: actions/setup-node@master
+      - name: "Setup Nodejs"
+        uses: actions/setup-node@master
         with:
           node-version: 16.13.0
       - name: Install dependencies
@@ -50,22 +53,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.create_release.outputs.tag-name }}
-          files: 'dist/*'
-        
-
-
-      # - name: Update mac release file in existing Github Release
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     artifacts: "dist/*"
-      #     replacesArtifacts: false
-      #     token: ${{ secrets.TOKEN }}
-      #     allowUpdates: true
-      # OR
-      # - uses: lucyio/upload-to-release@master
-      #   with:
-      #     name: lucyio/electron
-      #     path: ./dist
-      #     action: unpublished
-      #     release_id: 0.x.x
-      #     release-repo: lucyio/electron
+          files: dist/*

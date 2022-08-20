@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Release
+        id: create_release_tag
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ github.ref_name }}
@@ -27,7 +28,7 @@ jobs:
   build_on_mac:
     needs: create_release_tag
     name: Build Mac Release
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v4
@@ -46,7 +47,7 @@ jobs:
         run: npm run publish
       - name: see directory in dist (must have tarball of application after publishing the build)
         run: ls ./dist
-       - name: Upload Mac release assets
+      - name: Upload Mac release assets
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.create_release_tag.outputs.tag-name }}

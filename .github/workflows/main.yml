@@ -1,0 +1,39 @@
+# name of your github action
+name: CI
+
+# this will help you specify where to run 
+on:
+  push:
+    branches:
+    # this will run on the electron branch
+      - build/electron-builder
+
+# this is where the magic happens, each job happens in parallel btw
+
+jobs:
+  build_on_mac:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        ref: electron
+    - uses: actions/setup-node@master
+      with:
+        node-version: 16.13.0
+    - name: see directory in dist
+      run: ls ./dist
+    - name: Install dependencies
+      run: npm install
+    - name: Build on MacOS
+      env:
+        ELECTRON: true
+      run: npm run package
+    - name: see directory in dist
+      run: ls ./dist
+    - uses: lucyio/upload-to-release@master
+      with:
+        name: lucyio/electron
+        path: ./dist
+        action: unpublished
+        release_id: 0.x.x
+        release-repo: lucyio/electron

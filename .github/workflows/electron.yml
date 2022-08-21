@@ -1,7 +1,7 @@
 # name of your github action
 name: Workbench Builds
 
-# this will help you specify when to run deployment
+# this will help you specify when & which branch to run deployment
 on:
   push:
     branches:

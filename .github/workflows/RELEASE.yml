@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Exit if tag not is not pointing to a commit in master branch
-        if: endsWith(github.ref, 'master') == false
+      - name: Exit if tag not is not pointing to a commit in build/electron-builder branch
+        if: endsWith(github.ref, 'build/electron-builder') == false
         run: exit -1
       - name: Get tag
         id: tag

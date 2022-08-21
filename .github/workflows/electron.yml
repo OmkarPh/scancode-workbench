@@ -25,35 +25,35 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{steps.tag.outputs.tag}}
-          name: Workbench v${{steps.tag.outputs.tag}}
+          name: Release ${{steps.tag.outputs.tag}}
           body_path: ./Release.md
           draft: false
           prerelease: false
           generate_release_notes: false
 
-  # build:
-  #   needs: create_release
-  #   name: Build Release archives
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest, macos-latest, windows-2019]
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.9'
-  #     - uses: actions/setup-node@master
-  #       with:
-  #         node-version: 16.13.0
-  #     - name: Install dependencies
-  #       run: npm install
-  #     - name: Build archive
-  #       run: npm run publish
-  #     - name: Verify Generated archive in dist/
-  #       run: ls ./dist
-  #     - name: Upload release assets
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         tag_name: ${{ github.ref_name }}
-  #         files: dist/*
+  build:
+    needs: create_release
+    name: Build Release archives
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-2019]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16.13.0
+      - name: Install dependencies
+        run: npm install
+      - name: Build archive
+        run: npm run publish
+      - name: Verify Generated archive in dist/
+        run: ls ./dist
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/*

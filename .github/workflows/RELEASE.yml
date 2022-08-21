@@ -37,12 +37,7 @@ jobs:
     name: Build Release archives
     strategy:
       matrix:
-        target: [
-          ubuntu-latest,
-          macos-latest,
-          windows-2019,
-          { 'os': 'darwin', 'arch': 'arm64' },
-        ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@master

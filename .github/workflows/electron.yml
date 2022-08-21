@@ -14,10 +14,15 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - name: Get Tag Name
+        id: tag_name
+        run: |
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag_name.outputs.SOURCE_TAG }}
           name: Release - ${{ github.ref }} - ${{ github.ref_name }}
           body_path: Release.md
           draft: false

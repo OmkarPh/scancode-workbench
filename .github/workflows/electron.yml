@@ -23,8 +23,6 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag_name.outputs.SOURCE_TAG }}
-          name: Release - ${{ github.ref }} - ${{ github.ref_name }}
           body_path: ./Release.md
           draft: false
           prerelease: false

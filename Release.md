@@ -3,7 +3,7 @@
 - Updated dependencies
 - Updated Tableview library
 - Maintain history of imports
-- Github actions to create release automatically <br/>
+- Github actions to create release automatically
   Exception: macos arm64 is not yet support by Github actions yet, needs manual build & upload
 
 ## Bug fixes

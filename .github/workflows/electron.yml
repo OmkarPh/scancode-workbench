@@ -15,14 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: Get Tag Name
-        id: tag_name
-        run: |
-          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: false
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{steps.tag.outputs.tag}}
+          name: Workbench v${{steps.tag.outputs.tag}}
           body_path: ./Release.md
           draft: false
           prerelease: false

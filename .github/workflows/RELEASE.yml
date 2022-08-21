@@ -1,5 +1,5 @@
 # name of your github action
-name: Workbench Builds
+name: Release CD
 
 # this will help you specify when & which branch to run deployment
 on:
@@ -16,7 +16,7 @@ jobs:
       # - name: Exit if tag not is not pointing to a commit in master branch
       #   if: endsWith(github.ref, 'master') == false
       #   run: exit -1
-      - name: Get tag
+      - name: Get release tag
         id: tag
         uses: dawidd6/action-get-tag@v1
         with:
@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: 3.9
       - uses: actions/setup-node@master
         with:
           node-version: 16.13.0

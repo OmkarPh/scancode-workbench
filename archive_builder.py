@@ -9,7 +9,6 @@ It is meant to run primarily on Github actions
 """
 
 import os
-import subprocess
 import sys
 import json
 import platform

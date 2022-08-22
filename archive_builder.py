@@ -65,11 +65,6 @@ if on_windows:
   zip_command = f"powershell Compress-Archive {PACKAGE_DIR}/* {ARCHIVE_DIR}/{archive_file_name}.zip"
   print("Executing zip command on powershell:", zip_command)
   os.system(zip_command)
-  # p = subprocess.Popen(
-  #   ["powershell.exe", zip_command],
-  #   stdout=sys.stdout
-  # )
-  # p.communicate()
   print(f"Zip file ready in {ARCHIVE_DIR}/ !!")
 
 # Prepare .tar.gz file for mac & linux

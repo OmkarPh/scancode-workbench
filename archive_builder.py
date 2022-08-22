@@ -9,6 +9,7 @@ It is meant to run primarily on Github actions
 """
 
 import os
+import subprocess
 import sys
 import json
 import platform
@@ -62,8 +63,13 @@ os.system(ensure_archive_directory)
 # Prepare .zip file for windows
 if on_windows:
   zip_command = f"Compress-Archive {PACKAGE_DIR}/* {ARCHIVE_DIR}/{archive_file_name}.zip"
-  print("Executing zip command:", zip_command)
+  print("Executing zip command on powershell:", zip_command)
   os.system(zip_command)
+  p = subprocess.Popen(
+    ["powershell.exe", zip_command],
+    stdout=subprocess.DEVNULL,
+  )
+  p.communicate()
   print(f"Zip file ready in {ARCHIVE_DIR}/ !!")
 
 # Prepare .tar.gz file for mac & linux

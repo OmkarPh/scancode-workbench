@@ -37,6 +37,11 @@ const MENU_ITEMS = [
         icon: faArchive,
     },
     {
+        title: "Packages",
+        route: "/" + ROUTES.PACKAGES,
+        icon: faArchive,
+    },
+    {
         title: "Chart Summary View",
         route: "/" + ROUTES.CHART_SUMMARY,
         icon: faChartColumn,

@@ -1,0 +1,24 @@
+.packages-list-container {
+  padding: 10px;
+
+}
+
+.package-list {
+  
+}
+.dependency-list {
+  border: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.entity {
+  width: 100%;
+}
+.entity:hover {
+  background-color: rgb(213, 213, 213);
+}
+.selected-entity {
+  background-color: rgb(182, 182, 182);
+}

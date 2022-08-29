@@ -1,0 +1,4 @@
+.package-entity .react-json-view, .dependency-entity .react-json-view {
+  max-height: 75vh;
+  overflow: scroll;
+}

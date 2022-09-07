@@ -25,14 +25,21 @@ const PackageEntity = (props: PackageEntityProps) => {
     <div className='package-entity'>
       <h5>
         Package: { activePackage.name }
-        { activePackage.version ? '@' + activePackage.version : ''} <br/>
+        { activePackage.version ? '@' + activePackage.version : ''}
+        &nbsp; ( { activePackage.type } )
+        <br/>
       </h5>
       <h6>
-        UID: { activePackage.package_uid } <br/>
-        Type: { activePackage.type }
+        { activePackage.package_uid } <br />
       </h6>
+      <b>Dependencies:</b><br/>
       <div className='deps-list'>
-        Dependencies:
+        {
+          (!activePackage.dependencies || !activePackage.dependencies.length) &&
+          <>
+            &nbsp; None :/
+          </>
+        }
         {
           activePackage.dependencies.map(dependency => (
             <a
@@ -51,6 +58,7 @@ const PackageEntity = (props: PackageEntityProps) => {
       <br/>
       <br/>
       <br/> */}
+      Raw package:
       <ReactJson
         src={activePackage}
         enableClipboard={false}

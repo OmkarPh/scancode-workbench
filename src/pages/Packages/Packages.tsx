@@ -174,7 +174,7 @@ const Packages = () => {
         console.log("Package groups", parsedPackageGroups);
 
         setExpandedPackages([]);
-        activatePackage(parsedPackageWithDeps[1]);
+        activatePackage(parsedPackageWithDeps[0]);
       });
   }, [workbenchDB]);
   
@@ -234,7 +234,7 @@ const Packages = () => {
                 key={packageGroup.type}
                 className='package-group-list'
               >
-                { packageGroup.type } - { packageGroup.packages.length } packages detected
+                { packageGroup.type } - { packageGroup.packages.length }
                 <ListGroup className='package-list'>
                   {
                     packageGroup.packages.map(packageWithDep => {

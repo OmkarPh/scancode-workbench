@@ -29,6 +29,7 @@ const DependencyEntity = (props: DependencyEntityProps) => {
         Data file: { activeDependency.datafile_path }
       </h6>
       <br/>
+      Raw package:
       <ReactJson
         src={activeDependency || {}}
         enableClipboard={false}

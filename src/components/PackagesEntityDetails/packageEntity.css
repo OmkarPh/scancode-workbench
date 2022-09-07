@@ -1,6 +1,12 @@
-/* .package-entity {
-
-} */
+.deps-list {
+  max-height: 200px;
+  overflow: scroll;
+  width: fit-content;
+  max-width: 95%;
+  padding: 5px;
+  padding-left: 0px;
+  padding-right: 25px;
+}
 .deps-list .deps-link {
   color: #0d6efd;
   display: block;

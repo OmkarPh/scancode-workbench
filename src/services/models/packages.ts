@@ -42,7 +42,7 @@ export interface PackagesAttributes {
   vcs_url: DataTypes.StringDataType | null,
   copyright: DataTypes.StringDataType | null,
   license_expression: DataTypes.StringDataType | null,
-  declared_license: DataTypes.StringDataType | null,
+  declared_license: AbstractDataType | null,
   notice_text: DataTypes.StringDataType | null,
   source_packages: AbstractDataType,
   extra_data: AbstractDataType,
@@ -142,10 +142,7 @@ export default function packagesModel(sequelize: Sequelize) {
         allowNull: true,
         type: DataTypes.STRING,
       },
-      declared_license: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
+      declared_license: jsonDataType('declared_license'),
       notice_text: {
         allowNull: true,
         type: DataTypes.STRING,

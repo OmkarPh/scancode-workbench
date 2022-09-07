@@ -1,14 +1,16 @@
 import ReactJson from '@microlink/react-json-view';
 import React from 'react'
-import { PackageDetails } from '../../pages/Packages/packageDefinitions'
+import { DependencyDetails, PackageDetails } from '../../pages/Packages/packageDefinitions'
 
 import './entityCommonStyles.css'
+import './packageEntity.css'
 
 interface PackageEntityProps {
   package: PackageDetails,
+  goToDependency: (dependency: DependencyDetails) => void,
 }
 const PackageEntity = (props: PackageEntityProps) => {
-  const activePackage = props.package;
+  const { goToDependency, package: activePackage} = props;
 
   if(!activePackage){
     return (
@@ -22,12 +24,33 @@ const PackageEntity = (props: PackageEntityProps) => {
   return (
     <div className='package-entity'>
       <h5>
-        Package - { activePackage.name }
+        Package: { activePackage.name }
+        { activePackage.version ? '@' + activePackage.version : ''} <br/>
       </h5>
       <h6>
-        UID - { activePackage.package_uid }
+        UID: { activePackage.package_uid } <br/>
+        Type: { activePackage.type }
       </h6>
+      <div className='deps-list'>
+        Dependencies:
+        {
+          activePackage.dependencies.map(dependency => (
+            <a
+              className='deps-link'
+              key={dependency.dependency_uid}
+              onClick={() => goToDependency(dependency)}
+            >
+              { dependency.purl }
+            </a>
+          ))
+        }
+      </div>
       <br/>
+      
+      {/* <br/>
+      <br/>
+      <br/>
+      <br/> */}
       <ReactJson
         src={activePackage}
         enableClipboard={false}

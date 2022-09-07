@@ -3,6 +3,7 @@ import React from 'react'
 import { DependencyDetails } from '../../pages/Packages/packageDefinitions'
 
 import './entityCommonStyles.css'
+import './dependencyEntity.css'
 
 interface DependencyEntityProps {
   dependency: DependencyDetails
@@ -20,12 +21,12 @@ const DependencyEntity = (props: DependencyEntityProps) => {
     )
   }
   return (
-    <div className='dependency-info'>
+    <div className='dependency-entity'>
       <h5>
-        Dependency - { activeDependency.purl }
+        Dependency: { activeDependency.purl }
       </h5>
       <h6>
-        Data file - { activeDependency.datafile_path }
+        Data file: { activeDependency.datafile_path }
       </h6>
       <br/>
       <ReactJson

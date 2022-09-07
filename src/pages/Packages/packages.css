@@ -14,7 +14,7 @@
 }
 .packages-container {
   min-height: 90vh;
-  height: 90vh;
+  height: 93vh;
 }
 .packages-panes {
   padding-right: 15px;
@@ -24,6 +24,11 @@
   padding: 10px;
 }
 
+.package-group-list {
+  border: 0 !important;
+  padding: 0 !important;
+  padding-bottom: 25px !important;
+}
 
 .entity {
   width: 100%;
@@ -54,6 +59,9 @@
   padding-left: 2px;
   padding-right: 2px;
   line-height: 2.5;
+}
+.entity-info .entity-name .badge{
+  margin-left: 10px;
 }
 .entity-info > div {
   padding: 2px;

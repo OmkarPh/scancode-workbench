@@ -51,6 +51,9 @@ body {
   background-color: #FFFFFF;
   margin-bottom: 30px;
 }
+img {
+  -webkit-user-drag: none;
+}
 
 .card > .content {
   text-align: center;

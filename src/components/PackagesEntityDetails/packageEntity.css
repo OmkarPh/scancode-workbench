@@ -1,1 +1,12 @@
+/* .package-entity {
 
+} */
+.deps-list .deps-link {
+  color: #0d6efd;
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+.deps-list .deps-link:hover {
+  color: #0a58ca;
+}

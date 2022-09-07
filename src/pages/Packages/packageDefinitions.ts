@@ -16,7 +16,7 @@ export interface PackageDetails {
   name: string,
   type: string,
   dependencies: DependencyDetails[],
-  namespace: string,
+  namespace: string | null,
   version: string | null,
   qualifiers: unknown,
   subpath: string | null,
@@ -47,4 +47,8 @@ export interface PackageDetails {
   datafile_paths: unknown,
   datasource_ids: unknown,
   purl: string,
+}
+export interface PackageTypeGroupDetails {
+  packages: PackageDetails[],
+  type: string,
 }

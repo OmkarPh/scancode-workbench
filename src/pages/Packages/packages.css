@@ -55,6 +55,10 @@
   display: table;
   align-items: center;
 }
+.entity-type-badge {
+  float: right;
+  margin-right: 0;
+}
 .entity-info .entity-name{
   padding-left: 2px;
   padding-right: 2px;

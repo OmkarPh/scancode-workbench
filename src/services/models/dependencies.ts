@@ -32,34 +32,46 @@ import { jsonDataType } from './databaseUtils';
   datasource_id: DataTypes.StringDataType,
  }
 
+ export enum DEPENDENCY_SCOPES {
+  TEST = "test",
+  COMPILE = "compile",
+  DEVELOPMENT = "development",
+  DEPENDENCIES = "dependencies",
+  DEV_DEPENDENCIES = "devDependencies",
+  IMPORT = "import",
+  REQUIRE = "require",
+  RUNTIME = "runtime",
+  PROVIDED = "provided",
+  DEPENDENCY_MGMT = "dependencymanagement",
+ }
  
- export default function dependenciesModel(sequelize: Sequelize) {
-   return sequelize.define<Model<DependenciesAttributes>>(
-     "dependencies",
-     {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: DataTypes.INTEGER,
-      },
-      purl: DataTypes.STRING,
-      extracted_requirement: DataTypes.STRING,
-      scope: DataTypes.STRING,
-      is_runtime: DataTypes.BOOLEAN,
-      is_optional: DataTypes.BOOLEAN,
-      is_resolved: DataTypes.BOOLEAN,
-      resolved_package: jsonDataType('resolved_package'),
-      dependency_uid: DataTypes.STRING,
-      for_package_uid: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      datafile_path: DataTypes.STRING,
-      datasource_id: DataTypes.STRING,
-     },
-     {
-       timestamps: false,
-     }
-   );
+export default function dependenciesModel(sequelize: Sequelize) {
+  return sequelize.define<Model<DependenciesAttributes>>(
+    "dependencies",
+    {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER,
+    },
+    purl: DataTypes.STRING,
+    extracted_requirement: DataTypes.STRING,
+    scope: DataTypes.STRING,
+    is_runtime: DataTypes.BOOLEAN,
+    is_optional: DataTypes.BOOLEAN,
+    is_resolved: DataTypes.BOOLEAN,
+    resolved_package: jsonDataType('resolved_package'),
+    dependency_uid: DataTypes.STRING,
+    for_package_uid: {
+      allowNull: true,
+      type: DataTypes.STRING,
+    },
+    datafile_path: DataTypes.STRING,
+    datasource_id: DataTypes.STRING,
+    },
+    {
+      timestamps: false,
+    }
+  );
  }

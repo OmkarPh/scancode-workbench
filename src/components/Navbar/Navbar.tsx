@@ -37,7 +37,7 @@ const MENU_ITEMS = [
         icon: faArchive,
     },
     {
-        title: "Package list",
+        title: "Packages Explorer",
         route: "/" + ROUTES.PACKAGES,
         icon: faList,
     },

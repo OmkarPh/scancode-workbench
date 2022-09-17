@@ -3,11 +3,12 @@ import { Allotment } from 'allotment';
 import { ThreeDots } from 'react-loader-spinner';
 import React, { useEffect, useState } from 'react';
 import { Badge, Collapse, ListGroup, ListGroupItem } from 'react-bootstrap';
-import { PackageURL } from 'packageurl-js';
+// import { PackageURL } from 'packageurl-js';
 
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
-import { PackageDetails, DependencyDetails, PackageTypeGroupDetails } from './packageDefinitions';
+import { DEPENDENCY_SCOPES } from '../../services/models/dependencies';
 import DependencyEntity from '../../components/PackagesEntityDetails/DependencyEntity';
+import { PackageDetails, DependencyDetails, PackageTypeGroupDetails } from './packageDefinitions';
 
 import RightArrowIcon from "../../assets/icons/rightArrow.svg";
 import PackageEntity from '../../components/PackagesEntityDetails/PackageEntity';
@@ -28,6 +29,12 @@ const Packages = () => {
     setActiveDependency(null);
     setActivePackage(packageInfo);
     setActiveEntityType('package');
+  }
+  const activatePackageByUID = (package_uid: string) => {
+    const targetPackage = packagesWithDeps.find(packageInfo => packageInfo.package_uid === package_uid);
+    if(package_uid && targetPackage){
+      activatePackage(targetPackage)
+    }
   }
   const activateDependency = (dependency: DependencyDetails) => {
     setActivePackage(null);
@@ -130,7 +137,7 @@ const Packages = () => {
           repository_download_url: null,
           api_data_url: null,
           datafile_paths: {},
-          datasource_ids: {},
+          datasource_ids: [],
           purl: null,
         };
         packageMapping.set(OTHERS, OTHERS_PACKAGE);
@@ -138,12 +145,12 @@ const Packages = () => {
         // Group dependencies in their respective packages
         deps.forEach(dependencyInfo => {
           const targetPackageUid: string | null = dependencyInfo.getDataValue('for_package_uid')?.toString({});
-          const parsedPURL = PackageURL.fromString(dependencyInfo.getDataValue('purl').toString({}));
-          console.log("Parsed package from purl", parsedPURL);
+          // const parsedPURL = PackageURL.fromString(dependencyInfo.getDataValue('purl').toString({}));
+          // console.log("Parsed package from purl", parsedPURL);
           packageMapping.get(targetPackageUid || OTHERS).dependencies.push({
             purl: dependencyInfo.getDataValue('purl').toString({}),
             extracted_requirement: dependencyInfo.getDataValue('extracted_requirement')?.toString({}) || "",
-            scope: dependencyInfo.getDataValue('scope').toString({}),
+            scope: dependencyInfo.getDataValue('scope').toString({}) as DEPENDENCY_SCOPES,
             is_runtime: dependencyInfo.getDataValue('is_runtime'),
             is_optional: dependencyInfo.getDataValue('is_optional'),
             is_resolved: dependencyInfo.getDataValue('is_resolved'),
@@ -155,6 +162,11 @@ const Packages = () => {
           })
         });
         const parsedPackageWithDeps = Array.from(packageMapping.values());
+        // @TODO
+        parsedPackageWithDeps.forEach(pkg => {
+          if(Object.keys(pkg.qualifiers).length)
+            console.log("Qualifying:", pkg);
+        })
         setPackagesWithDeps(parsedPackageWithDeps);
         console.log("Packages with deps:", parsedPackageWithDeps);
 
@@ -218,7 +230,7 @@ const Packages = () => {
   return (
     <div className='packages-main-container'>
       <h4 className='page-title'>
-        Packages
+        Packages & Dependencies explorer
       </h4>
       <Allotment className='packages-container'>
         <Allotment.Pane
@@ -271,12 +283,12 @@ const Packages = () => {
                             </div>
                             <div className='entity-name'>
                               { packageTitle }
-                              {
+                              {/* {
                                 isPackageActive && 
                                 <span>
                                   <Badge pill>selected</Badge>
                                 </span>
-                              }
+                              } */}
                             </div>
                           </div>
                           <div className='total-deps'>
@@ -297,15 +309,32 @@ const Packages = () => {
                                     onClick={() => activateDependency(dependency)}
                                   >
                                     <div className='entity-info'>
-                                      {/* { dependency.purl } */}
                                       { dependency.purl.replace('pkg:', '') }
-                                      {
-                                        isDependencyActive && 
-                                        <span>
-                                          &nbsp;&nbsp;&nbsp;
-                                          <Badge pill>selected</Badge>
-                                        </span>
-                                      }
+                                      { !dependency.is_runtime && "#dev" }
+                                      <div className='entity-type-badge'>
+                                        <Badge
+                                          pill
+                                          bg={
+                                            dependency.is_runtime ? "primary" :
+                                            dependency.is_optional ? "light" :
+                                            dependency.is_resolved ? "success" :
+                                            "light"
+                                          }
+                                          text={
+                                            dependency.is_runtime ? "light" :
+                                            dependency.is_optional ? "dark" :
+                                            dependency.is_resolved ? "light" :
+                                            "dark"
+                                          }
+                                        >
+                                          {
+                                            dependency.is_optional ? "Optional" :
+                                            dependency.is_runtime ? "Runtime" :
+                                            dependency.is_resolved ? "Resolved" :
+                                            ""
+                                          }
+                                        </Badge>
+                                      </div>
                                     </div>
                                   </ListGroupItem>
                                 );
@@ -333,15 +362,13 @@ const Packages = () => {
               activePackage &&
               <PackageEntity
                 package={activePackage}
-                // goToPackage={activatePackage}
                 goToDependency={activateDependency}
               />
             :
               activeDependency &&
               <DependencyEntity
                 dependency={activeDependency}
-                // goToPackage={activatePackage}
-                // goToDep={activateDependency}
+                goToPackageByUID={activatePackageByUID}
               />
           }
         </Allotment.Pane>

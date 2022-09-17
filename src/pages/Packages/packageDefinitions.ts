@@ -1,7 +1,9 @@
+import { DEPENDENCY_SCOPES } from "../../services/models/dependencies";
+
  export interface DependencyDetails {
   purl: string,
   extracted_requirement: string,
-  scope: string,
+  scope: DEPENDENCY_SCOPES,
   is_runtime: boolean,
   is_optional: boolean,
   is_resolved: boolean,
@@ -45,7 +47,7 @@ export interface PackageDetails {
   repository_download_url: string | null,
   api_data_url: string | null,
   datafile_paths: unknown,
-  datasource_ids: unknown,
+  datasource_ids: string[],
   purl: string,
 }
 export interface PackageTypeGroupDetails {

@@ -24,22 +24,51 @@ const PackageEntity = (props: PackageEntityProps) => {
   return (
     <div className='package-entity'>
       <h5>
-        Package: { activePackage.name }
+        { activePackage.name }
         { activePackage.version ? '@' + activePackage.version : ''}
         &nbsp; ( { activePackage.type } )
         <br/>
       </h5>
-      <h6>
-        { activePackage.package_uid } <br />
-      </h6>
-      <b>Dependencies:</b><br/>
-      <div className='deps-list'>
+      <div className='entity-properties'>
         {
-          (!activePackage.dependencies || !activePackage.dependencies.length) &&
-          <>
-            &nbsp; None :/
-          </>
+          [
+            [
+              <>
+                { activePackage.package_uid }
+                <br/>
+              </>,
+              ""
+            ],
+            [ "Type:", activePackage.type || "NA" ],
+            [ "Namespace:", activePackage.namespace || "NA" ],
+            [ "Name:", activePackage.name || "NA" ],
+            [ "Version:", activePackage.version || "NA" ],
+            [ "Subpath:", activePackage.subpath || "NA" ],
+            [ "Primary Language:", activePackage.primary_language || "NA" ],
+            [ "Homepage URL:", activePackage.homepage_url || "NA" ],
+          ].map(entry => (
+            <React.Fragment key={entry[0].toString()}>
+              <span className='property'>
+                { entry[0] || "" }
+              </span>
+              <span className='value'>
+                { entry[1] || "" }
+              </span>
+              <br/>
+            </React.Fragment>
+          ))
         }
+      </div>
+      <br/>
+      <b>
+        {
+          activePackage.dependencies.length === 0 ? "No Dependencies !"
+          : activePackage.dependencies.length === 1 ? "1 Dependency:"
+          : `${activePackage.dependencies.length} Dependencies:`
+        } 
+      </b>
+      <br/>
+      <div className='deps-list'>
         {
           activePackage.dependencies.map(dependency => (
             <a
@@ -58,12 +87,13 @@ const PackageEntity = (props: PackageEntityProps) => {
       <br/>
       <br/>
       <br/> */}
+      
       Raw package:
       <ReactJson
         src={activePackage}
         enableClipboard={false}
         displayDataTypes={false}
-        collapsed={1}
+        collapsed={0}
       />
     </div>
   )

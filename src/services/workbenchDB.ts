@@ -26,6 +26,7 @@ import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
+import { CustomHeaderJSONType } from './models/header';
 
 // console.log("Sqlite3", sqlite3);
 
@@ -328,22 +329,37 @@ export class WorkbenchDB {
           const header = topLevelData.headers[0];
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
+          console.log("Found header info", header, packages, dependencies);
           
           interface ParsedJsonHeader {
-            workbench_version: DataTypes.StringDataType,
-            workbench_notice: DataTypes.StringDataType,
-            header_content: DataTypes.StringDataType,
+            tool_name: DataTypes.StringDataType,
+            tool_version: DataTypes.StringDataType,
+            notice: DataTypes.StringDataType,
+            duration: DataTypes.DoubleDataType,
+            options: CustomHeaderJSONType,
+            input: CustomHeaderJSONType,
             files_count: IntegerDataType,
-            output_format_version: DataTypes.StringDataType,        // Query -Justify need for this
-            spdx_license_list_version: DataTypes.StringDataType,    // Query - Justify need for this
+            output_format_version: DataTypes.StringDataType,
+            spdx_license_list_version: DataTypes.StringDataType,    // @QUERY - Justify need for this
             operating_system: DataTypes.StringDataType,
             cpu_architecture: DataTypes.StringDataType,
             platform: DataTypes.StringDataType,
             platform_version: DataTypes.StringDataType,
             python_version: DataTypes.StringDataType,
+            workbench_version: DataTypes.StringDataType,
+            workbench_notice: DataTypes.StringDataType,
+            header_content: DataTypes.StringDataType,
           }
+
+          const input = header.options?.input || [];
+          delete header.options?.input;
           const parsedHeader: ParsedJsonHeader = {
-            header_content: JSON.stringify(header, undefined, 2) as unknown as DataTypes.StringDataType,   // FIXME
+            tool_name: header.tool_name,
+            tool_version: header.tool_version,
+            notice: header.notice,
+            duration: header.duration,
+            options: header.options || {},
+            input,
             files_count: header.extra_data.files_count,
             output_format_version: header.output_format_version,
             spdx_license_list_version: header.extra_data?.spdx_license_list_version,
@@ -354,6 +370,7 @@ export class WorkbenchDB {
             python_version: header.extra_data?.system_environment?.python_version,
             workbench_version: version as unknown as DataTypes.StringDataType,
             workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as DataTypes.StringDataType,
+            header_content: JSON.stringify(header, undefined, 2) as unknown as DataTypes.StringDataType,   // FIXME
           };
 
           console.log("Scan header info:", parsedHeader);

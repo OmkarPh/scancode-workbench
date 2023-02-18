@@ -14,13 +14,20 @@
  #
  */
 
-import { Sequelize, DataTypes, Model } from 'sequelize';
+import { Sequelize, DataTypes, Model, ModelAttributeColumnOptions } from 'sequelize';
+import { jsonDataType } from './databaseUtils';
+
+export type CustomHeaderJSONType = DataTypes.DataType | ModelAttributeColumnOptions<Model<HeaderAttributes, HeaderAttributes>>;
 
 export interface HeaderAttributes {
   id: DataTypes.IntegerDataType,
-  workbench_version: DataTypes.StringDataType,
-  workbench_notice: DataTypes.StringDataType,
+  tool_name: DataTypes.StringDataType,
+  tool_version: DataTypes.StringDataType,
+  notice: DataTypes.StringDataType,
+  duration: DataTypes.DoubleDataType,
   header_content: DataTypes.StringDataType,
+  options: CustomHeaderJSONType,
+  input: CustomHeaderJSONType,
   files_count: DataTypes.IntegerDataType,
   output_format_version: DataTypes.StringDataType,
   spdx_license_list_version: DataTypes.StringDataType,
@@ -29,6 +36,8 @@ export interface HeaderAttributes {
   platform: DataTypes.StringDataType,
   platform_version: DataTypes.StringDataType,
   python_version: DataTypes.StringDataType,
+  workbench_version: DataTypes.StringDataType,
+  workbench_notice: DataTypes.StringDataType,
 }
 
 export default function headerModel(sequelize: Sequelize) {
@@ -37,17 +46,19 @@ export default function headerModel(sequelize: Sequelize) {
     {
       // @TODO: The notices and versions should be in their own table
       // See https://github.com/nexB/aboutcode/issues/7
+
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      workbench_version: DataTypes.STRING,
-      workbench_notice: {
-        type: DataTypes.STRING,
-        defaultValue: 'None',
-      },
+      tool_name: DataTypes.STRING,
+      tool_version: DataTypes.STRING,
+      notice: DataTypes.STRING,
+      duration: DataTypes.DOUBLE,
+      options: jsonDataType('options'),
+      input: jsonDataType('input'),
       header_content: DataTypes.STRING,
       files_count: DataTypes.INTEGER,
       output_format_version: {
@@ -77,6 +88,11 @@ export default function headerModel(sequelize: Sequelize) {
       python_version: {
         type: DataTypes.STRING,
         defaultValue: 'Not included in the scan',
+      },
+      workbench_version: DataTypes.STRING,
+      workbench_notice: {
+        type: DataTypes.STRING,
+        defaultValue: 'None',
       },
     });
 }

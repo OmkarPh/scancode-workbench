@@ -46,6 +46,9 @@ const PackageEntity = (props: PackageEntityProps) => {
             [ "Subpath:", activePackage.subpath || "NA" ],
             [ "Primary Language:", activePackage.primary_language || "NA" ],
             [ "Homepage URL:", activePackage.homepage_url || "NA" ],
+            [ "Extracted license statement: ", activePackage.extracted_license_statement || "NA" ],
+            [ "Declared license expression", activePackage.declared_license_expression || "NA" ],
+            [ "Declared license expression SPDX", activePackage.declared_license_expression_spdx || "NA" ],
           ].map(entry => (
             <React.Fragment key={entry[0].toString()}>
               <span className='property'>

@@ -29,6 +29,7 @@ import flatFileModel, { FlatFileAttributes } from './flatFile';
 import scanErrorModel, { ScanErrorAttributes } from './scanError';
 import packagesModel, { PackagesAttributes } from './packages';
 import dependenciesModel, { DependenciesAttributes } from './dependencies';
+import licenseDetectionModel, { LicenseDetectionAttributes } from './licenseDetections';
 
 
 // let Header;
@@ -48,6 +49,7 @@ export interface DatabaseStructure{
   Header: ModelStatic<Model<HeaderAttributes, HeaderAttributes>>,
   Packages: ModelStatic<Model<PackagesAttributes, PackagesAttributes>>,
   Dependencies: ModelStatic<Model<DependenciesAttributes, DependenciesAttributes>>,
+  LicenseDetections: ModelStatic<Model<LicenseDetectionAttributes, LicenseDetectionAttributes>>,
 
   File: ModelStatic<Model<FileAttributes>>,
   License: ModelStatic<Model<LicenseAttributes>>,
@@ -71,6 +73,7 @@ export function newDatabase(sequelize: Sequelize): DatabaseStructure {
     Header: headerModel(sequelize),
     Packages: packagesModel(sequelize),
     Dependencies: dependenciesModel(sequelize),
+    LicenseDetections: licenseDetectionModel(sequelize),
 
     File: fileModel(sequelize),
     License: licenseModel(sequelize),

@@ -1,6 +1,6 @@
 /*
  #
- # Copyright (c) 2018 nexB Inc. and others. All rights reserved.
+ # Copyright (c) 2019 nexB Inc. and others. All rights reserved.
  # https://nexb.com and https://github.com/nexB/scancode-workbench/
  # The ScanCode Workbench software is licensed under the Apache License version 2.0.
  # ScanCode is a trademark of nexB Inc.
@@ -14,28 +14,30 @@
  #
  */
 
-
-import { Sequelize, DataTypes, IntegerDataType, StringDataType, Model } from 'sequelize';
+ import { Sequelize, DataTypes, IntegerDataType, StringDataType, Model, NumberDataType } from 'sequelize';
 import { jsonDataType, JSON_Type } from './databaseUtils';
 
-export interface LicenseAttributes {
-  id: IntegerDataType,
-  fileId: IntegerDataType,
-}
-
-export default function licenseModel(sequelize: Sequelize) {
-  return sequelize.define<Model<LicenseAttributes>>(
-    'licenses',
-    {
-      id: {
+ export interface LicenseDetectionAttributes {
+  identifier: StringDataType,
+  license_expression: StringDataType,
+  count: NumberDataType,
+  detection_log: JSON_Type,
+  matches: JSON_Type,
+ }
+ 
+ export default function licenseDetectionModel(sequelize: Sequelize) {
+   return sequelize.define<Model<LicenseDetectionAttributes>>(
+     'license_detections',
+     {
+       identifier: {
+        type: DataTypes.STRING,
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: DataTypes.INTEGER,
-      },
-      fileId: DataTypes.INTEGER,
-    },
-    {
-      timestamps: false
-    });
-}
+       },
+       license_expression: DataTypes.STRING,
+       count: DataTypes.NUMBER,
+       detection_log: jsonDataType('detection_log'),
+       matches: jsonDataType('matches'),
+    }
+   )
+ }

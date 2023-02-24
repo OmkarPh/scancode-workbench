@@ -6,6 +6,7 @@ import ReactJson from '@microlink/react-json-view'
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 
 import './scanInfo.css';
+import InfoEntry from './InfoEntry';
 
 interface ScanInfo {
   tool_name: string,
@@ -89,145 +90,103 @@ const ScanInfo = () => {
         parsedScanInfo ?
         <table border={1} className='overview-table'>
           <tbody>
-            <tr>
-              <td>
-                Tool
-              </td>
-              <td>
-                { parsedScanInfo.tool_name } v{ parsedScanInfo.tool_version }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Input
-              </td>
-              <td>
-                <ul>
+            <InfoEntry name='Tool'>
+              { parsedScanInfo.tool_name }
+            </InfoEntry>
+
+            <InfoEntry name='Tool version'>
+              { parsedScanInfo.tool_version }
+            </InfoEntry>
+
+            <InfoEntry
+              name='Input'
+              show={parsedScanInfo.input && parseIfValidJson(parsedScanInfo.input) > 0}
+            >
+              <ul>
+                {
+                  (parseIfValidJson(parsedScanInfo.input) || []).map((value: string, idx: number) => (
+                    <li key={value+idx}>
+                      { value }
+                    </li>
+                  ))
+                }
+              </ul>
+            </InfoEntry>
+
+            <InfoEntry
+              name='Options'
+              show={parsedScanInfo.options && parseIfValidJson(parsedScanInfo.options) > 0}
+            >
+              <table className='options-table'>
+                <tbody>
                   {
-                    (parseIfValidJson(parsedScanInfo.input) || []).map((value: string, idx: number) => (
-                      <li key={value+idx}>
-                        { value }
-                      </li>
-                    ))
-                  }
-                </ul>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Options
-              </td>
-              <td>
-                <table className='options-table'>
-                  <tbody>
-                    {
-                      Object.entries(parseIfValidJson(parsedScanInfo.options) || []).map(([key, value]) => (
-                        <tr key={key}>
-                          <td>
-                            { key }
-                          </td>
+                    Object.entries(parseIfValidJson(parsedScanInfo.options) || []).map(([key, value]) => (
+                      <tr key={key}>
+                        <td>
+                          { key }
+                        </td>
+                        {
+                          typeof value !== 'boolean' &&
                           <td>
                             { String(value) }
                           </td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Files count
-              </td>
-              <td>
-                { parsedScanInfo.files_count }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Output format version
-              </td>
-              <td>
-                { parsedScanInfo.output_format_version }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                SPDX license list version
-              </td>
-              <td>
-                { parsedScanInfo.spdx_license_list_version }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Operating system
-              </td>
-              <td>
-                { parsedScanInfo.operating_system }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                CPU architecture
-              </td>
-              <td>
-                { parsedScanInfo.cpu_architecture }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Platform
-              </td>
-              <td>
-                { parsedScanInfo.platform }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Platform version
-              </td>
-              <td>
-                { parsedScanInfo.platform_version }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Python version
-              </td>
-              <td>
-                { parsedScanInfo.python_version }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Scan duration
-              </td>
-              <td>
-                { parsedScanInfo.duration } seconds
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Tool notice
-              </td>
-              <td>
-                { parsedScanInfo.notice }
-              </td>
-            </tr>
-            <tr>
-              <td>
-                Raw header
-              </td>
-              <td>
-                <ReactJson
-                  src={parseIfValidJson(parsedScanInfo.raw_header_content || {})}
-                  enableClipboard={false}
-                  displayDataTypes={false}
-                />
-              </td>
-            </tr>
+                        }
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </InfoEntry>
+            
+            <InfoEntry name='Files count'>
+              { parsedScanInfo.files_count }
+            </InfoEntry>
+            
+            <InfoEntry name='Output format version'>
+              { parsedScanInfo.output_format_version }
+            </InfoEntry>
+            
+            <InfoEntry name='SPDX license list version'>
+              { parsedScanInfo.spdx_license_list_version }
+            </InfoEntry>
+            
+            <InfoEntry name='Operating system'>
+              { parsedScanInfo.operating_system }
+            </InfoEntry>
+            
+            <InfoEntry name='CPU architecture'>
+              { parsedScanInfo.cpu_architecture }
+            </InfoEntry>
+            
+            <InfoEntry name='Platform'>
+              { parsedScanInfo.platform }
+            </InfoEntry>
+            
+            <InfoEntry name='Platform version'>
+              { parsedScanInfo.platform_version }
+            </InfoEntry>
+            
+            <InfoEntry name='Python version'>
+              { parsedScanInfo.python_version }
+            </InfoEntry>
+
+            <InfoEntry name='Scan duration'>
+              { parsedScanInfo.duration } seconds
+            </InfoEntry>
+
+            <InfoEntry name='Tool notice'>
+              { parsedScanInfo.notice }
+            </InfoEntry>
+
+            <InfoEntry name=' Raw header'>
+              <ReactJson
+                src={parseIfValidJson(parsedScanInfo.raw_header_content || {})}
+                enableClipboard={false}
+                displayDataTypes={false}
+              />
+            </InfoEntry>
+            
+
             {/* {
               Object.entries(parsedScanInfo).map(([key, value]) => {
                 const parsedValue = parseIfValidJson(value);
@@ -265,6 +224,7 @@ const ScanInfo = () => {
                 )
               })
             } */}
+
           </tbody>
         </table>
         : <h5>Import JSON / string first</h5>

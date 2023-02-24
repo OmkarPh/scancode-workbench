@@ -14,9 +14,13 @@ import RightArrowIcon from "../../assets/icons/rightArrow.svg";
 import PackageEntity from '../../components/PackagesEntityDetails/PackageEntity';
 
 import './packages.css';
+import { useSearchParams } from 'react-router-dom';
+
+export const PACKAGE_QUERY_KEY = 'pkg-identifier';
 
 const Packages = () => {
   const workbenchDB = useWorkbenchDB();
+  const [searchParams] = useSearchParams();
   const [expandedPackages, setExpandedPackages] = useState<string[]>([]);
   const [packagesWithDeps, setPackagesWithDeps] = useState<PackageDetails[] | null>(null);
   const [packageGroups, setPackageGroups] = useState<PackageTypeGroupDetails[] | null>(null);
@@ -31,11 +35,20 @@ const Packages = () => {
     setActiveEntityType('package');
   }
   const activatePackageByUID = (package_uid: string) => {
-    const targetPackage = packagesWithDeps.find(packageInfo => packageInfo.package_uid === package_uid);
+    const targetPackage = packagesWithDeps?.find(packageInfo => packageInfo.package_uid === package_uid);
     if(package_uid && targetPackage){
-      activatePackage(targetPackage)
+      activatePackage(targetPackage);
     }
+    return targetPackage;
   }
+  useEffect(() => {
+    const queriedPackageUid = searchParams.get(PACKAGE_QUERY_KEY);
+    if(!queriedPackageUid)
+      return;
+    if(packagesWithDeps && packagesWithDeps.length)
+      activatePackageByUID(queriedPackageUid);
+  }, [searchParams]);
+
   const activateDependency = (dependency: DependencyDetails) => {
     setActivePackage(null);
     setActiveDependency(dependency);
@@ -56,8 +69,8 @@ const Packages = () => {
       .then(async () => {
         const packages = await db.getAllPackages();
         const deps = await db.getAllDependencies();
-        console.log("Packages", packages);
-        console.log("Deps", deps);
+        // console.log("Packages", packages);
+        // console.log("Deps", deps);
 
         // const type_other = 'type-other';
         const packageMapping = new Map<string, PackageDetails>(
@@ -88,8 +101,11 @@ const Packages = () => {
               code_view_url: packageInfo.getDataValue('code_view_url')?.toString({}) || null,
               vcs_url: packageInfo.getDataValue('vcs_url')?.toString({}) || null,
               copyright: packageInfo.getDataValue('copyright')?.toString({}) || null,
-              license_expression: packageInfo.getDataValue('license_expression')?.toString({}) || null,
-              declared_license: packageInfo.getDataValue('declared_license')?.toString({}) || null,
+              declared_license_expression: packageInfo.getDataValue('declared_license_expression')?.toString({}) || null,
+              declared_license_expression_spdx: packageInfo.getDataValue('declared_license_expression_spdx')?.toString({}) || null,
+              other_license_expression: packageInfo.getDataValue('other_license_expression')?.toString({}) || null,
+              other_license_expression_spdx: packageInfo.getDataValue('other_license_expression_spdx')?.toString({}) || null,
+              extracted_license_statement: packageInfo.getDataValue('extracted_license_statement')?.toString({}).replace(/(^"|"$)/g, '') || null,
               notice_text: packageInfo.getDataValue('notice_text')?.toString({}) || null,
               source_packages: JSON.parse(packageInfo.getDataValue('source_packages').toString({})),
               extra_data: JSON.parse(packageInfo.getDataValue('extra_data').toString({})),
@@ -128,8 +144,11 @@ const Packages = () => {
           code_view_url: null,
           vcs_url: null,
           copyright: null,
-          license_expression: null,
-          declared_license: null,
+          declared_license_expression: null,
+          declared_license_expression_spdx: null,
+          other_license_expression: null,
+          other_license_expression_spdx: null,
+          extracted_license_statement: null,
           notice_text: null,
           source_packages: {},
           extra_data: {},
@@ -145,9 +164,8 @@ const Packages = () => {
         // Group dependencies in their respective packages
         deps.forEach(dependencyInfo => {
           const targetPackageUid: string | null = dependencyInfo.getDataValue('for_package_uid')?.toString({});
-          // const parsedPURL = PackageURL.fromString(dependencyInfo.getDataValue('purl').toString({}));
-          // console.log("Parsed package from purl", parsedPURL);
           packageMapping.get(targetPackageUid || OTHERS).dependencies.push({
+            // ...dependencyInfo,     // For debugging
             purl: dependencyInfo.getDataValue('purl').toString({}),
             extracted_requirement: dependencyInfo.getDataValue('extracted_requirement')?.toString({}) || "",
             scope: dependencyInfo.getDataValue('scope').toString({}) as DEPENDENCY_SCOPES,
@@ -167,8 +185,8 @@ const Packages = () => {
           if(Object.keys(pkg.qualifiers).length)
             console.log("Qualifying:", pkg);
         })
-        setPackagesWithDeps(parsedPackageWithDeps);
         console.log("Packages with deps:", parsedPackageWithDeps);
+        setPackagesWithDeps(parsedPackageWithDeps);
 
         // Group packages in their respective package type group
         const packageGroupMapping = new Map<string, PackageDetails[]>();
@@ -186,7 +204,16 @@ const Packages = () => {
         console.log("Package groups", parsedPackageGroups);
 
         setExpandedPackages([]);
-        activatePackage(parsedPackageWithDeps[0]);
+
+        // Select package based on query or default
+        const queriedPackageUid = searchParams.get(PACKAGE_QUERY_KEY);
+        const queriedPackage = parsedPackageWithDeps.find(packageInfo => packageInfo.package_uid === queriedPackageUid);
+        if(queriedPackage){
+          activatePackage(queriedPackage);
+          console.log(`Activate queried package(${queriedPackageUid}): `, queriedPackage);
+        } else {
+          activatePackage(parsedPackageWithDeps[0]);
+        }
       });
   }, [workbenchDB]);
   

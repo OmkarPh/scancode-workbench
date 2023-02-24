@@ -12,7 +12,7 @@ export const COPYRIGHT_COLUMNS: ColDef[] = [
 ];
 
 export const LICENSE_COLUMNS: ColDef[] = [
-  ALL_COLUMNS.license_expressions,
+  ALL_COLUMNS.detected_license_expression,
   ALL_COLUMNS.license_key,
   ALL_COLUMNS.license_score,
   ALL_COLUMNS.license_short_name,

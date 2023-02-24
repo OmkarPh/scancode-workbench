@@ -45,8 +45,12 @@ const COPYRIGHT_COLUMN_GROUP: ColDef[] = [
 
 
 const LICENSE_COLUMN_GROUP: ColDef[] = [
+  ALL_COLUMNS.detected_license_expression,
+  ALL_COLUMNS.detected_license_expression_spdx,
+  ALL_COLUMNS.percentage_of_license_text,
+  ALL_COLUMNS.license_clues,
+  ALL_COLUMNS.for_license_detections,
   ALL_COLUMNS.license_policy,
-  ALL_COLUMNS.license_expressions,
   ALL_COLUMNS.license_key,
   ALL_COLUMNS.license_score,
   ALL_COLUMNS.license_short_name,

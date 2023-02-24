@@ -14,9 +14,10 @@
  #
  */
 
-import Sequelize from 'sequelize';
+import Sequelize, { AbstractDataType } from 'sequelize';
 
 // Stores an object as a json string internally, but as an object externally
+export type JSON_Type = AbstractDataType;
 export function jsonDataType(attributeName: string) {
   return {
     type: Sequelize.STRING,

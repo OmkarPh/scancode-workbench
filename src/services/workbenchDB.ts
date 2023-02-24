@@ -15,18 +15,17 @@
  */
 
 import $ from 'jquery'
-import { BulkCreateOptions, DataTypes, FindOptions, IntegerDataType, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
+import { BulkCreateOptions, DataTypes, FindOptions, StringDataType, IntegerDataType, Model, Sequelize, Transaction, TransactionOptions } from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 // import sqlite3 from 'sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
-import {parentPath} from './models/databaseUtils';
+import { JSON_Type, parentPath } from './models/databaseUtils';
 import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
-import { CustomHeaderJSONType } from './models/header';
 
 // console.log("Sqlite3", sqlite3);
 
@@ -143,6 +142,10 @@ export class WorkbenchDB {
       .then((count) => count ? count.getDataValue('files_count') : 0);
   }
 
+  getAllLicenseDetections(){
+    return this.sync.then(db => db.LicenseDetections.findAll());
+  }
+
   getAllPackages(){
     return this.sync.then(db => db.Packages.findAll());
   }
@@ -190,7 +193,7 @@ export class WorkbenchDB {
     // But, maybe needed, if we want different file icons for packages licenses etc
 
     // // When determining type for each file is important
-    // type GenericModelValues = { fileId: DataTypes.IntegerDataType};
+    // type GenericModelValues = { fileId: IntegerDataType};
     // function prepareIdSet(values: Model<GenericModelValues, GenericModelValues>[]){
     //   const resultMapping = new Set<number>();
     //   values.forEach(value => resultMapping.add(Number(value.getDataValue('fileId'))));
@@ -310,7 +313,7 @@ export class WorkbenchDB {
     let rootPath: string | null = null;
     let hasRootPath = false;
     const batchSize  = 1000;
-    let files: any[] = [];    // @TODO
+    let files: unknown[] = [];    // @TODO
     let progress = 0;
     let promiseChain: Promise<void | DatabaseStructure | number> = this.sync;
 
@@ -324,31 +327,35 @@ export class WorkbenchDB {
       let batchCount = 0;
 
       stream
-        .pipe(JSONStream.parse('files.*'))
+        .pipe(JSONStream.parse('files.*'))      // files field is piped to 'data' & reset to 'header'
         .on('header', (topLevelData: any) => {
           const header = topLevelData.headers[0];
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
-          console.log("Found header info", header, packages, dependencies);
+          const license_detections = topLevelData.license_detections || [];
+          const license_references = topLevelData.license_references || [];
+          const license_rule_references = topLevelData.license_rule_references || [];
+
+          console.log("Top level data", {header, packages, dependencies, license_detections, license_references, license_rule_references});
           
           interface ParsedJsonHeader {
-            tool_name: DataTypes.StringDataType,
-            tool_version: DataTypes.StringDataType,
-            notice: DataTypes.StringDataType,
+            tool_name: StringDataType,
+            tool_version: StringDataType,
+            notice: StringDataType,
             duration: DataTypes.DoubleDataType,
-            options: CustomHeaderJSONType,
-            input: CustomHeaderJSONType,
+            options: JSON_Type,
+            input: JSON_Type,
             files_count: IntegerDataType,
-            output_format_version: DataTypes.StringDataType,
-            spdx_license_list_version: DataTypes.StringDataType,    // @QUERY - Justify need for this
-            operating_system: DataTypes.StringDataType,
-            cpu_architecture: DataTypes.StringDataType,
-            platform: DataTypes.StringDataType,
-            platform_version: DataTypes.StringDataType,
-            python_version: DataTypes.StringDataType,
-            workbench_version: DataTypes.StringDataType,
-            workbench_notice: DataTypes.StringDataType,
-            header_content: DataTypes.StringDataType,
+            output_format_version: StringDataType,
+            spdx_license_list_version: StringDataType,    // @QUERY - Justify need for this
+            operating_system: StringDataType,
+            cpu_architecture: StringDataType,
+            platform: StringDataType,
+            platform_version: StringDataType,
+            python_version: StringDataType,
+            workbench_version: StringDataType,
+            workbench_notice: StringDataType,
+            header_content: StringDataType,
           }
 
           const input = header.options?.input || [];
@@ -368,9 +375,9 @@ export class WorkbenchDB {
             platform: header.extra_data?.system_environment?.platform,
             platform_version: header.extra_data?.system_environment?.platform_version,
             python_version: header.extra_data?.system_environment?.python_version,
-            workbench_version: version as unknown as DataTypes.StringDataType,
-            workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as DataTypes.StringDataType,
-            header_content: JSON.stringify(header, undefined, 2) as unknown as DataTypes.StringDataType,   // FIXME
+            workbench_version: version as unknown as StringDataType,
+            workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as StringDataType,
+            header_content: JSON.stringify(header, undefined, 2) as unknown as StringDataType,   // FIXME
           };
 
           console.log("Scan header info:", parsedHeader);
@@ -379,8 +386,10 @@ export class WorkbenchDB {
           promiseChain = promiseChain
             .then(() => this.db.Packages.bulkCreate(packages))
             .then(() => this.db.Dependencies.bulkCreate(dependencies))
+            .then(() => this.db.LicenseDetections.bulkCreate(license_detections))
             .then(() => this.db.Header.create(parsedHeader))
             .then(header => headerId = Number(header.getDataValue('id')));
+
         })
         .on('data', function(file: any) {
           if (!rootPath) {
@@ -399,6 +408,10 @@ export class WorkbenchDB {
           if (files.length >= batchSize) {
             // Need to set a new variable before handing to promise
             this.pause();
+            if(file.path == 'samples/JGroups/EULA')
+              console.log("Flat File before: ", file);
+              // if(file.path == 'samples/JGroups/EULA')
+              //   console.log("Creating flat file eula", file);
             
             promiseChain = promiseChain
               .then(() => primaryPromise._batchCreateFiles(files, headerId))
@@ -456,15 +469,23 @@ export class WorkbenchDB {
       .then(() => this._addFiles(files, headerId));
   }
 
-  _addFlattenedFiles(files: any) {
+  _addFlattenedFiles(files: unknown[]) {
     // Fix for issue #232
-    $.each(files, (i, file) => {
+    $.each(files, (i, file: any) => {
       if (file.type === 'directory' && Object.prototype.hasOwnProperty.call(file, 'size_count')) {
         file.size = file.size_count;
       }
     });
-    files = $.map(files, (file) => flattenFile(file));
-    return this.db.FlatFile.bulkCreate(files, { logging: false });
+
+    const flattenedFiles = files.map((file: unknown) => flattenFile(file));
+
+    // @DEBUG
+    // flattenedFiles.forEach(file => {
+    //   if(file.path == 'samples/JGroups/EULA')
+    //     console.log("Flat File: ", file);
+    // });
+    
+    return this.db.FlatFile.bulkCreate(flattenedFiles, { logging: false });
   }
 
   _addFiles(files: any, headerId: number) {
@@ -492,7 +513,7 @@ export class WorkbenchDB {
         .then(() => this.db.License.bulkCreate(this._addExtraFields(files, 'licenses'), options))
         .then(() => DebugLogger("license processor", "Processed licenses"))
 
-        .then(() => this.db.LicenseExpression.bulkCreate(this._addExtraFields(files, 'license_expressions'), options))
+        .then(() => this.db.LicenseExpression.bulkCreate(this._getLicenseExpressions(files), options))
         .then(() => DebugLogger("license exp processor", "Processed license_exp"))
 
         .then(() => this.db.LicensePolicy.bulkCreate(this._addExtraFields(files, 'license_policy'), options)) 
@@ -549,6 +570,20 @@ export class WorkbenchDB {
         return value;
       });
     });
+  }
+
+  _getLicenseExpressions(files: any[]) {
+    const licenseExpressions: {fileId: IntegerDataType, license_expression: StringDataType }[] = [];
+    files.forEach(file => {
+      const license_detections = file.license_detections || [];
+      licenseExpressions.push(
+        ...(license_detections.map((detection: any) => ({
+          fileId: file.id,
+          license_expression: detection.license_expression
+        })))
+      )
+    });
+    return licenseExpressions;
   }
 
   _getLicensePolicy(file: any) {

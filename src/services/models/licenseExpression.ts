@@ -14,12 +14,12 @@
  #
  */
 
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import { Sequelize, StringDataType, IntegerDataType, DataTypes, Model, Optional } from 'sequelize';
 
 export interface LicenseExpressionAttributes {
-  id: DataTypes.IntegerDataType,
-  fileId: DataTypes.IntegerDataType,
-  license_expression: DataTypes.StringDataType
+  id: IntegerDataType,
+  fileId: IntegerDataType,
+  license_expression: StringDataType
 }
 
 export type OptionalLicenseExpressionAttributes =

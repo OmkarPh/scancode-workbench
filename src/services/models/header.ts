@@ -14,30 +14,28 @@
  #
  */
 
-import { Sequelize, DataTypes, Model, ModelAttributeColumnOptions } from 'sequelize';
-import { jsonDataType } from './databaseUtils';
-
-export type CustomHeaderJSONType = DataTypes.DataType | ModelAttributeColumnOptions<Model<HeaderAttributes, HeaderAttributes>>;
+import { Sequelize, DataTypes, IntegerDataType, StringDataType, Model } from 'sequelize';
+import { JSON_Type, jsonDataType } from './databaseUtils';
 
 export interface HeaderAttributes {
-  id: DataTypes.IntegerDataType,
-  tool_name: DataTypes.StringDataType,
-  tool_version: DataTypes.StringDataType,
-  notice: DataTypes.StringDataType,
+  id: IntegerDataType,
+  tool_name: StringDataType,
+  tool_version: StringDataType,
+  notice: StringDataType,
   duration: DataTypes.DoubleDataType,
-  header_content: DataTypes.StringDataType,
-  options: CustomHeaderJSONType,
-  input: CustomHeaderJSONType,
-  files_count: DataTypes.IntegerDataType,
-  output_format_version: DataTypes.StringDataType,
-  spdx_license_list_version: DataTypes.StringDataType,
-  operating_system: DataTypes.StringDataType,
-  cpu_architecture: DataTypes.StringDataType,
-  platform: DataTypes.StringDataType,
-  platform_version: DataTypes.StringDataType,
-  python_version: DataTypes.StringDataType,
-  workbench_version: DataTypes.StringDataType,
-  workbench_notice: DataTypes.StringDataType,
+  header_content: StringDataType,
+  options: JSON_Type,
+  input: JSON_Type,
+  files_count: IntegerDataType,
+  output_format_version: StringDataType,
+  spdx_license_list_version: StringDataType,
+  operating_system: StringDataType,
+  cpu_architecture: StringDataType,
+  platform: StringDataType,
+  platform_version: StringDataType,
+  python_version: StringDataType,
+  workbench_version: StringDataType,
+  workbench_notice: StringDataType,
 }
 
 export default function headerModel(sequelize: Sequelize) {
@@ -71,23 +69,23 @@ export default function headerModel(sequelize: Sequelize) {
       },
       operating_system: {
         type: DataTypes.STRING,
-        defaultValue: 'Not included in the scan',
+        defaultValue: null,
       },
       cpu_architecture: {
         type: DataTypes.STRING,
-        defaultValue: 'Not included in the scan',
+        defaultValue: null,
       },
       platform: {
         type: DataTypes.STRING,
-        defaultValue: 'Not included in the scan',
+        defaultValue: null,
       },
       platform_version: {
         type: DataTypes.STRING,
-        defaultValue: 'Not included in the scan',
+        defaultValue: null,
       },
       python_version: {
         type: DataTypes.STRING,
-        defaultValue: 'Not included in the scan',
+        defaultValue: null,
       },
       workbench_version: DataTypes.STRING,
       workbench_notice: {

@@ -278,7 +278,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
               return;
             }
             const defaultPath = root.getDataValue('path');
-            console.log("Root dir", defaultPath);
+            // console.log("Default path (Root dir): ", defaultPath);
 
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
 

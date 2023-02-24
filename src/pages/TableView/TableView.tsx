@@ -137,10 +137,10 @@ const TableView = () => {
 
       Promise.all(filterPromises)
         .then((generatedColDefs) => {
-          console.log(
-            "Completed generation of unique set filters:",
-            generatedColDefs.map(coldef => coldef.filterParams.options)
-          );
+          // console.log(
+          //   "Generated unique set filters:",
+          //   generatedColDefs.map(coldef => coldef.filterParams.options)
+          // );
           setColumnDefs(prevColDefs => {
             if(prevColDefs.length)
               return [...prevColDefs];

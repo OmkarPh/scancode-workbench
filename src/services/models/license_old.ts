@@ -21,6 +21,20 @@ import { jsonDataType, JSON_Type } from './databaseUtils';
 export interface LicenseAttributes {
   id: IntegerDataType,
   fileId: IntegerDataType,
+  key: StringDataType,
+  score: IntegerDataType,
+  short_name: StringDataType,
+  category: StringDataType,
+  is_unknown: boolean,
+  owner: StringDataType,
+  homepage_url: StringDataType,
+  text_url: StringDataType,
+  reference_url: StringDataType,
+  spdx_license_key: StringDataType,
+  spdx_url: StringDataType,
+  start_line: IntegerDataType,
+  end_line: IntegerDataType,
+  matched_rule: JSON_Type
 }
 
 export default function licenseModel(sequelize: Sequelize) {
@@ -34,6 +48,20 @@ export default function licenseModel(sequelize: Sequelize) {
         type: DataTypes.INTEGER,
       },
       fileId: DataTypes.INTEGER,
+      key: DataTypes.STRING,
+      score: DataTypes.INTEGER,
+      short_name: DataTypes.STRING,
+      category: DataTypes.STRING,
+      is_unknown: { type: DataTypes.BOOLEAN, defaultValue: false },
+      owner: DataTypes.STRING,
+      homepage_url: DataTypes.STRING,
+      text_url: DataTypes.STRING,
+      reference_url: DataTypes.STRING,
+      spdx_license_key: DataTypes.STRING,
+      spdx_url: DataTypes.STRING,
+      start_line: DataTypes.INTEGER,
+      end_line: DataTypes.INTEGER,
+      matched_rule: jsonDataType('matched_rule')
     },
     {
       timestamps: false

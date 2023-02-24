@@ -64,9 +64,11 @@ const DependencyEntity = (props: DependencyEntityProps) => {
           [
             [
               "For:", 
+              activeDependency.for_package_uid ?
               <a onClick={() => goToPackageByUID(activeDependency.for_package_uid)}>
                 { activeDependency.for_package_uid || "NA" }
               </a>
+              : <>NA</>
             ],
             [ "Scope:", activeDependency.scope || "NA" ],
             [ "Extracted requirement:", activeDependency.extracted_requirement || "NA" ],

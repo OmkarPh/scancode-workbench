@@ -264,7 +264,7 @@ const Packages = () => {
           snap
           minSize={200}
           preferredSize="35%"
-          className='packages-panes'
+          className='packages-panes p-2'
         >
           <ListGroup>
           {
@@ -386,7 +386,7 @@ const Packages = () => {
         <Allotment.Pane
           snap
           minSize={200}
-          className='packages-panes details-pane'
+          className='packages-panes details-pane p-4'
         >
           {
             activeEntityType === 'package' ?

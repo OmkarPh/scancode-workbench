@@ -136,7 +136,7 @@ const TableView = () => {
       });
 
       Promise.all(filterPromises)
-        .then((generatedColDefs) => {
+        .then(() => {
           // console.log(
           //   "Generated unique set filters:",
           //   generatedColDefs.map(coldef => coldef.filterParams.options)

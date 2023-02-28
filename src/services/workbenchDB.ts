@@ -509,9 +509,6 @@ export class WorkbenchDB {
       
       return this.db.File.bulkCreate(files, options)
         .then(() => DebugLogger("file processor", "Processed bulkcreate"))
-        
-        .then(() => this.db.License.bulkCreate(this._addExtraFields(files, 'licenses'), options))
-        .then(() => DebugLogger("license processor", "Processed licenses"))
 
         .then(() => this.db.LicenseExpression.bulkCreate(this._getLicenseExpressions(files), options))
         .then(() => DebugLogger("license exp processor", "Processed license_exp"))

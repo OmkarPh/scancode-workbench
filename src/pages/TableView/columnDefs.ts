@@ -78,21 +78,9 @@ interface COLUMNS_LIST {
   detected_license_expression: ColDef,
   detected_license_expression_spdx: ColDef,
   percentage_of_license_text: ColDef,
-  license_clues: ColDef,
   for_license_detections: ColDef,
   license_policy: ColDef,
-  license_key: ColDef,
-  license_score: ColDef,
-  license_short_name: ColDef,
-  license_category: ColDef,
-  license_owner: ColDef,
-  license_is_unknown: ColDef,
-  // license_homepage_url: ColDef,
-  // license_text_url: ColDef,
-  // license_reference_url: ColDef,
-  license_spdx_key: ColDef,
-  license_start_line: ColDef,
-  license_end_line: ColDef,
+  license_clues: ColDef,
 
   email: ColDef,
   url: ColDef,
@@ -250,15 +238,6 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     headerName: "License text %",
     width: 120,
   },
-  license_clues: {
-    field: "license_clues",
-    headerName: "License clues",
-    width: 120,
-    cellRenderer: CustomComponentKeys.UrlListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-  },
   for_license_detections: {
     field: "for_license_detections",
     headerName: "For License detections",
@@ -280,95 +259,14 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS
     },
   },
-  license_key: {
-    field: 'license_key',
-    headerName: 'License Key',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 320,
-  },
-  license_score: {
-    field: 'license_score',
-    headerName: 'License Score',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 150,
-  },
-  license_short_name: {
-    field: 'license_short_name',
-    headerName: 'License Short Name',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 240,
-  },
-  license_category: {
-    field: 'license_category',
-    headerName: 'License Category',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 225,
-  },
-  license_owner: {
-    field: 'license_owner',
-    headerName: 'License Owner',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 290,
-  },
-  license_is_unknown: {
-    field: 'license_is_unknown',
-    headerName: 'Unknown license',
-    valueFormatter: BooleanValueFormatter,
+  license_clues: {
+    field: "license_clues",
+    headerName: "License clues",
     width: 120,
-  },
-  // license_homepage_url: {
-  //   field: 'license_homepage_url',
-  //   headerName: 'License Homepage URL',
-  // },
-  // license_text_url: {
-  //   field: 'license_text_url',
-  //   headerName: 'License Text URL',
-  // },
-  // license_reference_url: {
-  //   field: 'license_reference_url',
-  //   headerName: 'License Reference URL',
-  // },
-  license_spdx_key: {
-    field: 'license_spdx_key',
-    headerName: 'SPDX License Key',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
+    cellRenderer: CustomComponentKeys.UrlListCellRenderer,
     filterParams: {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS
     },
-    width: 200,
-  },
-  license_start_line: {
-    field: 'license_start_line',
-    headerName: 'License Start Line',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 125,
-  },
-  license_end_line: {
-    field: 'license_end_line',
-    headerName: 'License End Line',
-    cellRenderer: CustomComponentKeys.ListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    width: 125,
   },
 
 

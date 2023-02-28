@@ -14,7 +14,6 @@ export const SET_FILTERED_COLUMNS = new Set<string>([
 
   ALL_COLUMNS.copyright_holders.field || "",
   ALL_COLUMNS.copyright_authors.field || "",
-  ALL_COLUMNS.license_score.field || "",
   // ALL_COLUMNS..field || "",
   // ALL_COLUMNS..field || "",
 ])
@@ -48,28 +47,14 @@ const LICENSE_COLUMN_GROUP: ColDef[] = [
   ALL_COLUMNS.detected_license_expression,
   ALL_COLUMNS.detected_license_expression_spdx,
   ALL_COLUMNS.percentage_of_license_text,
-  ALL_COLUMNS.license_clues,
   ALL_COLUMNS.for_license_detections,
   ALL_COLUMNS.license_policy,
-  ALL_COLUMNS.license_key,
-  ALL_COLUMNS.license_score,
-  ALL_COLUMNS.license_short_name,
-  ALL_COLUMNS.license_category,
-  ALL_COLUMNS.license_owner,
-  ALL_COLUMNS.license_is_unknown,
-  // ALL_COLUMNS.license_homepage_url,
-  // ALL_COLUMNS.license_text_url,
-  // ALL_COLUMNS.license_reference_url,
-  ALL_COLUMNS.license_spdx_key,
-  ALL_COLUMNS.license_start_line,
-  ALL_COLUMNS.license_end_line,
+  ALL_COLUMNS.license_clues,
 ];
 
 const ORIGIN_COLUMN_GROUP: ColDef[] = [
   ALL_COLUMNS.copyright_statements,
-  ALL_COLUMNS.license_short_name,
   ALL_COLUMNS.license_policy,
-  ALL_COLUMNS.license_category,
   ALL_COLUMNS.email,
   ALL_COLUMNS.url,
   ALL_COLUMNS.mime_type,

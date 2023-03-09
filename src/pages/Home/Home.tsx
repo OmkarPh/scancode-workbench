@@ -45,10 +45,10 @@ console.log("Renderer Deps:", {
 /**
  * Developer options
  */
+
 const DEV_CONFIG = {
   AUTO_IMPORT_IN_DEV: false,
-  GO_TO_ROUTE_ON_IMPORT: ROUTES.TABLE_VIEW,
-  // GO_TO_ROUTE_ON_IMPORT: DEFAULT_ROUTE_ON_IMPORT,    // Default
+  GO_TO_ROUTE_ON_IMPORT: ROUTES.LICENSE_DETECTIONS,
 }
 
 const Home = () => {

@@ -1,15 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactJson from '@microlink/react-json-view';
+import { AgGridReact } from 'ag-grid-react';
+
+import { DEFAULT_MATCHES_COL_DEF, DetectionMatchesCols } from './MatchesTableCols';
 import { LicenseDetectionDetails } from '../../pages/LicenseDetections/licenseDefinitions';
 
 import './licenseDetection.css'
+import '../../styles/entityCommonStyles.css'
 
 interface LicenseDetectionEntityProps {
   licenseDetection: LicenseDetectionDetails | null,
 }
 const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
   const { licenseDetection } = props;
+  const matches = licenseDetection?.matches || [];
+  console.log("Matches", matches);
 
+  useEffect(() => {
+    // if(matches)
+    //   matches.push({
+    //     ...matches[0]
+    //   })
+  }, [matches]);
+  
   if(!licenseDetection){
     return (
       <div>
@@ -64,13 +77,24 @@ const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
           ))
         }
       </div>
-      <br/>
       
       {/* <br/>
       <br/>
       <br/>
       <br/> */}
-      
+      <AgGridReact
+        rowData={matches}
+        columnDefs={DetectionMatchesCols}
+        // onGridReady={onGridReady}
+        className="ag-theme-alpine ag-grid-customClass matches-table"
+
+        ensureDomOrder
+        enableCellTextSelection
+
+        pagination={false}
+        defaultColDef={DEFAULT_MATCHES_COL_DEF}
+      />
+      <br/>
       Raw license detection:
       <ReactJson
         src={licenseDetection}

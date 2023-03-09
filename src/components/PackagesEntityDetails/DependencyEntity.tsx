@@ -7,7 +7,7 @@ import { faCheck, faCogs } from '@fortawesome/free-solid-svg-icons';
 import { DependencyDetails } from '../../pages/Packages/packageDefinitions'
 import { DependencyScopeMapping } from './dependencyScopeMapper';
 
-import './entityCommonStyles.css'
+import '../../styles/entityCommonStyles.css';
 import './dependencyEntity.css'
 
 interface DependencyEntityProps {

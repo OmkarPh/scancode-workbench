@@ -108,8 +108,8 @@ const ChartView = () => {
       </div>
       <div
         style={{
-          minHeight: BAR_HEIGHT + 70,
-          height: BAR_HEIGHT * formattedBarchartData.counts.length + 70
+          minHeight: BAR_HEIGHT + 50,
+          height: BAR_HEIGHT * formattedBarchartData.counts.length + 50
         }}
       >
         <Bar

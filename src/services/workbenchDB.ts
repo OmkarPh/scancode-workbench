@@ -327,17 +327,56 @@ export class WorkbenchDB {
       let batchCount = 0;
 
       stream
-        .pipe(JSONStream.parse('files.*'))      // files field is piped to 'data' & reset to 'header'
+        .pipe(JSONStream.parse('files.*'))      // files field is piped to 'data' & rest to 'header'
         .on('header', (topLevelData: any) => {
           const header = topLevelData.headers[0];
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
-          const license_detections = topLevelData.license_detections || [];
-          const license_references = topLevelData.license_references || [];
-          const license_rule_references = topLevelData.license_rule_references || [];
+          const license_detections: any[] = topLevelData.license_detections || [];
+          const license_references: any[] = topLevelData.license_references || [];
+          const license_rule_references: any[] = topLevelData.license_rule_references || [];
 
           console.log("Top level data", {header, packages, dependencies, license_detections, license_references, license_rule_references});
           
+          const license_references_mapping = new Map<string, unknown>(
+            license_references.map(ref => [ref.key, ref])
+          );
+          const license_rule_references_mapping = new Map<string, unknown>(
+            license_rule_references.map(rule_ref => [rule_ref.identifier, rule_ref])
+          );
+          console.log("Top level mappings:", license_references_mapping, license_rule_references_mapping);
+          
+          // Update matches of all top level license detections to include rule information
+          license_detections.forEach(detection => {
+            detection.matches.forEach((match: any) => {
+              const MATCH_PROPERTIES = [
+                { expectedKey: 'license_key', field: 'key' },
+                { expectedKey: 'licensedb_url', field: 'licensedb_url' },
+                { expectedKey: 'scancode_url', field: 'scancode_url' },
+                { expectedKey: 'spdx_license_key', field: 'spdx_license_key' },
+                { expectedKey: 'spdx_url', field: 'spdx_url' },
+              ];
+              MATCH_PROPERTIES.forEach(prop => match[prop.expectedKey] = []);
+              // const REFERENCE_PROPERTIES = ['key', 'licensedb_url', 'spdx_license_key', 'spdx_url'];
+
+              // const keys = extract_keys_from_expression(detection.license_expression)    // @TODO
+              const keys = ['gpl-2.0-plus', 'ada-linking-exception'];
+
+              keys.forEach(key => {
+                const license_reference = license_references_mapping.get(key) as any;
+                if(!license_reference)  return;
+
+                MATCH_PROPERTIES.forEach(property => {
+                  match[property.expectedKey].push(license_reference[property.field] || null);
+                })
+              });
+            })
+
+            // const rule_reference = license_rule_references_mapping.get(detection.rule_identifier) || {} as any;
+            // const RULE_PROPERTIES = [];
+            // RULE_PROPERTIES.forEach(prop => detection[prop] = rule_reference[prop] || "");
+          });
+
           interface ParsedJsonHeader {
             tool_name: StringDataType,
             tool_version: StringDataType,
@@ -569,6 +608,7 @@ export class WorkbenchDB {
     });
   }
 
+  // @TODO - remove / update this
   _getLicenseExpressions(files: any[]) {
     const licenseExpressions: {fileId: IntegerDataType, license_expression: StringDataType }[] = [];
     files.forEach(file => {

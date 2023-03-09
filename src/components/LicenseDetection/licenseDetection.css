@@ -14,3 +14,6 @@
   max-height: 75vh;
   overflow: scroll;
 }
+.matches-table .ag-root-wrapper.ag-layout-normal {
+  min-height: 300px;
+}

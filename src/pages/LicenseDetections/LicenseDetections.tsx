@@ -72,7 +72,7 @@ const LicenseDetections = () => {
         <Allotment.Pane
           snap
           minSize={200}
-          preferredSize="35%"
+          preferredSize="30%"
           className='license-detections-panes p-2'
         >
           <ListGroup>
@@ -109,8 +109,8 @@ const LicenseDetections = () => {
         </Allotment.Pane>
       <Allotment.Pane
           snap
-          minSize={200}
-          className='license-detection-entity-pane p-4'
+          minSize={500}
+          className='license-detection-entity-panes p-4 overflow-scroll'
         >
           {
             <LicenseDetectionEntity

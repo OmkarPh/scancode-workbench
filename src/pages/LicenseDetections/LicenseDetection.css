@@ -1,6 +1,7 @@
 .license-detections-title {
   text-align: center;
   margin: 15px;
+  margin-top: 5px;
   width: 100%;
 }
 .license-detections-loader {
@@ -11,11 +12,10 @@
   justify-content: center;
 }
 .license-detections-main-container {
-  padding: 10px;
+  padding-top: 5px;
 }
 .license-container {
-  min-height: 90vh;
-  height: 93vh;
+  height: 90vh;
 }
 .license-detections-panes {
   padding-right: 15px;

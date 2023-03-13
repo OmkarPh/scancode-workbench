@@ -56,8 +56,6 @@ const AgDataTable = (props: AgDataTableProps) => {
     }
   }, [columnDefs])
 
-  console.log("Tbldata", tableData);
-  
 
   return (
     <div

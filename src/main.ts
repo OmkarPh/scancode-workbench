@@ -38,8 +38,8 @@ const createWindow = (): void => {
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      webSecurity: false,
       contextIsolation: false,
+      // webSecurity: false,
       // nodeIntegrationInSubFrames: true,
       // preload: path.join(__dirname, 'index.js'),
       // enableRemoteModule: true,

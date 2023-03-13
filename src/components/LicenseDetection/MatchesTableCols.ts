@@ -13,6 +13,16 @@ export const DEFAULT_MATCHES_COL_DEF: ColDef = {
 const MINI_FIELD_WIDTH = 90;
 export const DetectionMatchesCols: ColDef[] = [
   {
+    headerName: 'License key',
+    field: 'license_key',
+    cellRenderer: UrlListCellRenderer,
+    cellRendererParams: {
+      customUrlField: 'licensedb_url',
+      customUrlFieldFallback: 'scancode_url',
+    },
+    width: 270,
+  },
+  {
     headerName: 'Score',
     field: 'score',
     width: MINI_FIELD_WIDTH,
@@ -58,16 +68,6 @@ export const DetectionMatchesCols: ColDef[] = [
     headerName: 'Rule',
     field: 'rule_url',
     cellRenderer: UrlRenderer,
-    width: 270,
-  },
-  {
-    headerName: 'License key',
-    field: 'license_key',
-    cellRenderer: UrlListCellRenderer,
-    cellRendererParams: {
-      customUrlField: 'licensedb_url',
-      customUrlFieldFallback: 'scancode_url',
-    },
     width: 270,
   },
   // {

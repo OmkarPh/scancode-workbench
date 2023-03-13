@@ -21,7 +21,7 @@ import path from 'path';
 // import sqlite3 from 'sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
-import { JSON_Type, parentPath } from './models/databaseUtils';
+import { JSON_Type, parentPath, parseKeysFromExpression, parseKeysFromExpressionSimplified } from './models/databaseUtils';
 import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
@@ -357,13 +357,18 @@ export class WorkbenchDB {
                 { expectedKey: 'spdx_url', field: 'spdx_url' },
               ];
               MATCH_PROPERTIES.forEach(prop => match[prop.expectedKey] = []);
-              // const REFERENCE_PROPERTIES = ['key', 'licensedb_url', 'spdx_license_key', 'spdx_url'];
 
-              // const keys = extract_keys_from_expression(detection.license_expression)    // @TODO
-              const keys = ['gpl-2.0-plus', 'ada-linking-exception'];
+              // @TODO - license-expressions doesn't give expected parsed keys sometimes,
+              // eg. lgpl-2.1  ->  LGPL-2.1-only (we don't have this)
+              const keys = parseKeysFromExpressionSimplified(detection.license_expression)
+              // const keys = parseKeysFromExpression(detection.license_expression)
+              console.log("Keys:", detection.license_expression, keys);
 
               keys.forEach(key => {
-                const license_reference = license_references_mapping.get(key) as any;
+                const license_reference: any =
+                  license_references_mapping.get(key);
+                  // license_references_mapping.get(key) || license_references_mapping.get(detection.license_expression);
+
                 if(!license_reference)  return;
 
                 MATCH_PROPERTIES.forEach(property => {

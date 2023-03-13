@@ -24,16 +24,16 @@ import { DEFAULT_ROUTE_ON_IMPORT, ROUTES } from '../../constants/routes'
 
 const { ipcRenderer } = electron;
 
-console.log("Renderer Deps:", {
-  electron,
-  electronFs,
-  electronOs,
-  ipcRenderer,
-  platform: electronOs.platform(),
-  // remote,
-  // sqlite3,
-  // remoteMain,
-});
+// console.log("Renderer Deps:", {
+//   electron,
+//   electronFs,
+//   electronOs,
+//   ipcRenderer,
+//   platform: electronOs.platform(),
+//   // remote,
+//   // sqlite3,
+//   // remoteMain,
+// });
 
 // // Debugging for native modules
 // const electronDialog = electron.dialog;

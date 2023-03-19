@@ -21,7 +21,7 @@ import path from 'path';
 // import sqlite3 from 'sqlite3';
 import JSONStream from 'JSONStream';
 import { DatabaseStructure, newDatabase } from './models/database';
-import { JSON_Type, parentPath, parseKeysFromExpression, parseKeysFromExpressionSimplified } from './models/databaseUtils';
+import { JSON_Type, parentPath, parseKeysFromExpression } from './models/databaseUtils';
 import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
@@ -307,8 +307,8 @@ export class WorkbenchDB {
     const stream = fs.createReadStream(jsonFileName, {encoding: 'utf8'});
     const version = workbenchVersion;
     let headerId: number | null = null;
-    let files_count: number | null = null;
-    let dirs_count: number | null = null;
+    let files_count: number = 0;
+    let dirs_count: number = 0;
     let index = 0;
     let rootPath: string | null = null;
     let hasRootPath = false;
@@ -326,54 +326,66 @@ export class WorkbenchDB {
 
       let batchCount = 0;
 
+      interface TopLevelDataFormat {
+        header: unknown,
+        packages: unknown[],
+        dependencies: unknown[],
+        license_references: unknown[],
+        license_detections_map: Map<string, unknown>,
+        license_rule_references: unknown[],
+      }
+      let TopLevelData: TopLevelDataFormat = null;
+
       stream
         .pipe(JSONStream.parse('files.*'))      // files field is piped to 'data' & rest to 'header'
         .on('header', (topLevelData: any) => {
+          console.log("Top level data:", topLevelData);
+          
           const header = topLevelData.headers[0];
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
           const license_detections: any[] = topLevelData.license_detections || [];
+          const license_detections_map = new Map<string, unknown>(license_detections.map(detection => [detection.identifier, detection]));
           const license_references: any[] = topLevelData.license_references || [];
           const license_rule_references: any[] = topLevelData.license_rule_references || [];
+
+          TopLevelData = {
+            header, packages, dependencies,
+            license_detections_map, license_references, license_rule_references
+          }
 
           console.log("Top level data", {header, packages, dependencies, license_detections, license_references, license_rule_references});
           
           const license_references_mapping = new Map<string, unknown>(
             license_references.map(ref => [ref.key, ref])
           );
-          const license_rule_references_mapping = new Map<string, unknown>(
-            license_rule_references.map(rule_ref => [rule_ref.identifier, rule_ref])
-          );
-          console.log("Top level mappings:", license_references_mapping, license_rule_references_mapping);
+          // const license_rule_references_mapping = new Map<string, unknown>(
+          //   license_rule_references.map(rule_ref => [rule_ref.identifier, rule_ref])
+          // );
+          // console.log("Top level mappings:", license_references_mapping, license_rule_references_mapping);
           
           // Update matches of all top level license detections to include rule information
           license_detections.forEach(detection => {
+            if(detection && detection.matches)   // Fallback for old matches   // @TODO - temporary
             detection.matches.forEach((match: any) => {
-              const MATCH_PROPERTIES = [
-                { expectedKey: 'license_key', field: 'key' },
-                { expectedKey: 'licensedb_url', field: 'licensedb_url' },
-                { expectedKey: 'scancode_url', field: 'scancode_url' },
-                { expectedKey: 'spdx_license_key', field: 'spdx_license_key' },
-                { expectedKey: 'spdx_url', field: 'spdx_url' },
-              ];
-              MATCH_PROPERTIES.forEach(prop => match[prop.expectedKey] = []);
+              match.keys = [];
 
-              // @TODO - license-expressions doesn't give expected parsed keys sometimes,
-              // eg. lgpl-2.1  ->  LGPL-2.1-only (we don't have this)
-              const keys = parseKeysFromExpressionSimplified(detection.license_expression)
-              // const keys = parseKeysFromExpression(detection.license_expression)
-              console.log("Keys:", detection.license_expression, keys);
+              // @TODO
+              const parsedKeys = parseKeysFromExpression(detection.license_expression);
+              // console.log("Keys:", detection.license_expression, parsedKeys);
 
-              keys.forEach(key => {
-                const license_reference: any =
-                  license_references_mapping.get(key);
-                  // license_references_mapping.get(key) || license_references_mapping.get(detection.license_expression);
+              parsedKeys.forEach(key => {
+                const license_reference: any = license_references_mapping.get(key);
 
                 if(!license_reference)  return;
 
-                MATCH_PROPERTIES.forEach(property => {
-                  match[property.expectedKey].push(license_reference[property.field] || null);
-                })
+                match.keys.push({
+                  key: key,
+                  licensedb_url: license_reference.licensedb_url,
+                  scancode_url: license_reference.scancode_url,
+                  spdx_license_key: license_reference.spdx_license_key,
+                  spdx_url: license_reference.spdx_url,
+                });
               });
             })
 
@@ -430,12 +442,13 @@ export class WorkbenchDB {
           promiseChain = promiseChain
             .then(() => this.db.Packages.bulkCreate(packages))
             .then(() => this.db.Dependencies.bulkCreate(dependencies))
-            .then(() => this.db.LicenseDetections.bulkCreate(license_detections))
             .then(() => this.db.Header.create(parsedHeader))
             .then(header => headerId = Number(header.getDataValue('id')));
 
         })
         .on('data', function(file: any) {
+          console.log("Resource level:", file, TopLevelData);
+          
           if (!rootPath) {
             rootPath = file.path.split('/')[0];
           }
@@ -478,6 +491,13 @@ export class WorkbenchDB {
           }
         })
         .on('end', () => {
+
+          // Create license detections at the end, based on match data in files
+          promiseChain = promiseChain
+            .then(() => {
+              this.db.LicenseDetections.bulkCreate(Array.from(TopLevelData.license_detections_map.values()))
+            })
+
           // Add root directory into data
           // See https://github.com/nexB/scancode-toolkit/issues/543
           promiseChain
@@ -503,7 +523,7 @@ export class WorkbenchDB {
               resolve();
             }).catch((e: unknown) => reject(e));
         })
-        .on('error', (e: unknown) => reject(e));
+        .on('error', (e: unknown) => reject(e))
     });
   }
 

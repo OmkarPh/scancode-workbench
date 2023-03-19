@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react'
+import React, { FunctionComponent, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 
 interface UrlListCellRendererProps {
@@ -30,8 +30,10 @@ const UrlListCellRenderer: FunctionComponent<UrlListCellRendererProps> = (props)
     }
   }, [value]);
 
-  if(customUrlField)
-    console.log("Parsed: ", parsedValue, data[customUrlField][0]);
+  useEffect(() => {
+    if(customUrlField)
+      console.log("Parsed: ", parsedValue, data[customUrlField][0]);
+  }, [customUrlField])
   
   if(!parsedValue)
     return <></>;

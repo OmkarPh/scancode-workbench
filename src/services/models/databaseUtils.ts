@@ -36,30 +36,19 @@ export function parentPath(path: string) {
   return splits.length === 1 ? '#' : splits.slice(0, -1).join('/');
 }
 
-function flattenIntoLicenseKeysUtil(parsedExpression: any, licenses: string[]){
-  // LicenseInfo & ConjunctionInfo & LicenseRef
-  if (parsedExpression.license){
-    licenses.push(parsedExpression.license);
-  }
-  if(parsedExpression.licenseRef){
-    licenses.push(parsedExpression.licenseRef);
-  }
-  if(parsedExpression.exception){
-    licenses.push(parsedExpression.exception);
-  }
-  
-  if (parsedExpression.conjunction) {
-    flattenIntoLicenseKeysUtil(parsedExpression.left, licenses);
-    if (parsedExpression.conjunction === 'or' || parsedExpression.conjunction === 'and') {
-        flattenIntoLicenseKeysUtil(parsedExpression.right, licenses);
-    }
-  }
+
+export function parseTokensFromExpression(expression: string){
+  // const tokens = `(${expression})`.split(/( |\(|\))/);
+  const tokens = expression.split(/( |\(|\))/);
+  return tokens;
 }
 export function parseKeysFromExpression(expression: string){
-  console.log(parse(expression));
-  const keys: string[] = [];
-  flattenIntoLicenseKeysUtil(parse(expression), keys);
-  return keys;
+  const AVOID_KEYWORDS = new Set(['WITH', 'OR', 'AND']);
+
+  const tokens = parseTokensFromExpression(expression);
+  // console.log("Tokens", tokens);
+  
+  return tokens.filter(token => token.length && !AVOID_KEYWORDS.has(token));
 }
 
 const testCases = [
@@ -67,13 +56,5 @@ const testCases = [
   "zlib", "lgpl-2.1", "apache-1.1"   // not compatible for our use case
 ]
 testCases.forEach(expression => {
-  console.log(expression, parseKeysFromExpression(expression));
+  console.log(expression, { tokens: parseTokensFromExpression(expression), keys: parseKeysFromExpression(expression)});
 })
-
-export function parseKeysFromExpressionSimplified(expression: string){
-  const AVOID_KEYWORDS = new Set(['WITH', 'OR', 'AND']);
-
-  const keys = `(${expression})`.split(/( |\(|\))/);
-
-  return keys.filter(key => key.length && !AVOID_KEYWORDS.has(key));
-}

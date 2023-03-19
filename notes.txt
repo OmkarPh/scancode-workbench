@@ -1,0 +1,21 @@
+// P4
+LicenseDetections has moved from Top level to file level (parse files & pick from there)
+
+
+Order of cols
+License expression, Spdx license expression, score, Matched length, Match coverage, Matcher, (( -- start line, end line --)), Rule (rule identifier as key, and rule_url as href)
+* combine rule -> done
+* take out start line end line into file_regions
+
+
+Separate table for file_regions
+
+LicenseDetection {
+  file_regions: [
+    {
+      path: 'sdf'           // path at file level 
+      start_line: 24      minimum of matches[] start_line array
+      end_line: 45       maximum of matches[] start_line array
+    }
+  ]
+}

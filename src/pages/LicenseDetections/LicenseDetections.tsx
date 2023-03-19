@@ -34,7 +34,7 @@ const LicenseDetections = () => {
           identifier: detection.getDataValue('identifier').toString({}),
           license_expression: detection.getDataValue('license_expression').toString({}),
           detection_log: JSON.parse(detection.getDataValue('detection_log').toString({})),
-          matches: JSON.parse(detection.getDataValue('matches').toString({})),
+          matches: JSON.parse(detection.getDataValue('matches')?.toString({}) || "[]"),
         }));
         setLicenseDetections(newLicenseDetections);
         

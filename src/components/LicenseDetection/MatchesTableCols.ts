@@ -1,5 +1,5 @@
 import { ColDef } from "ag-grid-community";
-import { UrlListCellRenderer, UrlRenderer } from "../../pages/TableView/CustomCellRenderers";
+import { LicenseExpressionRenderer, UrlRenderer } from "../../pages/TableView/CustomCellRenderers";
 
 export const DEFAULT_MATCHES_COL_DEF: ColDef = {
   sortable: true,
@@ -13,12 +13,17 @@ export const DEFAULT_MATCHES_COL_DEF: ColDef = {
 const MINI_FIELD_WIDTH = 90;
 export const DetectionMatchesCols: ColDef[] = [
   {
-    headerName: 'License key',
-    field: 'license_key',
-    cellRenderer: UrlListCellRenderer,
+    headerName: 'License expression',
+    field: 'key',
+    cellRenderer: LicenseExpressionRenderer,
+    width: 270,
+  },
+  {
+    headerName: 'SPDX License expression',
+    field: 'spdx_license_key',
+    cellRenderer: LicenseExpressionRenderer,
     cellRendererParams: {
-      customUrlField: 'licensedb_url',
-      customUrlFieldFallback: 'scancode_url',
+      spdxLicense: true,
     },
     width: 270,
   },
@@ -27,23 +32,25 @@ export const DetectionMatchesCols: ColDef[] = [
     field: 'score',
     width: MINI_FIELD_WIDTH,
   },
+
+  // Separate table
+  // {
+  //   headerName: 'Start line',
+  //   wrapHeaderText: true,
+  //   field: 'start_line',
+  //   width: MINI_FIELD_WIDTH,
+  // },
+  // {
+  //   headerName: 'End line',
+  //   wrapHeaderText: true,
+  //   field: 'end_line',
+  //   width: MINI_FIELD_WIDTH,
+  // },
   {
-    headerName: 'Line Start',
-    wrapHeaderText: true,
-    field: 'start_line',
-    width: MINI_FIELD_WIDTH,
-  },
-  {
-    headerName: 'Line End',
-    wrapHeaderText: true,
-    field: 'end_line',
-    width: MINI_FIELD_WIDTH,
-  },
-  {
-    headerName: 'Match length',
+    headerName: 'Matched length',
     wrapHeaderText: true,
     field: 'matched_length',
-    width: 95,
+    width: 110,
   },
   {
     headerName: 'Match Coverage',
@@ -60,14 +67,14 @@ export const DetectionMatchesCols: ColDef[] = [
   //   headerName: 'License Expression',
   //   field: 'license_expression',
   // },
-  {
-    headerName: 'Rule identifier',
-    field: 'rule_identifier',
-  },
+
   {
     headerName: 'Rule',
     field: 'rule_url',
     cellRenderer: UrlRenderer,
+    cellRendererParams: {
+      customTextField: 'rule_identifier'
+    },
     width: 270,
   },
   // {
@@ -89,15 +96,6 @@ export const DetectionMatchesCols: ColDef[] = [
   //   },
   //   width: 270,
   // },
-  {
-    headerName: 'SPDX key',
-    field: 'spdx_license_key',
-    cellRenderer: UrlListCellRenderer,
-    cellRendererParams: {
-      customUrlField: 'spdx_url',
-    },
-    width: 270,
-  },
   // {
   //   headerName: 'SPDX URL',
   //   field: 'spdx_url',

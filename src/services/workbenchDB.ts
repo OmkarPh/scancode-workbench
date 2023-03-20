@@ -259,40 +259,6 @@ export class WorkbenchDB {
     return roots;
   }
 
-  // @TODO-Residue: Remove this
-  determineJSTreeType(file: Model<FileAttributes, FileAttributes>, promises: Set<number>[]) {
-    let type = '';
-
-    const packages = promises[0] || new Set();
-    const approvedPolicies = promises[1] || new Set();
-    const prohibitedPolicies = promises[2] || new Set();
-    const recommendedPolicies = promises[3] || new Set();
-    const restrictedPolicies = promises[4] || new Set();
-
-    const fileID = Number(file.getDataValue('id').toString({}));
-    const fileType = file.getDataValue('type').toString({});
-
-    if (packages.has(fileID)) {
-      if (fileType === 'file') {
-        type = 'packageFile';
-      } else if (fileType === 'directory') {
-        type = 'packageDir'; 
-      }
-    } else if (approvedPolicies.has(fileID)) {
-      type = 'approvedLicense';
-    } else if (prohibitedPolicies.has(fileID)) {
-      type = 'prohibitedLicense';
-    } else if (recommendedPolicies.has(fileID)) {
-      type = 'recommendedLicense';
-    } else if (restrictedPolicies.has(fileID)) {
-      type = 'restrictedLicense';
-    } else {
-      type = fileType;
-    }
-    
-    return type;
-  }
-
   // Add rows to the flattened files table from a ScanCode json object
   addFromJson(
     jsonFileName: string,
@@ -330,8 +296,10 @@ export class WorkbenchDB {
         header: unknown,
         packages: unknown[],
         dependencies: unknown[],
-        license_references: unknown[],
+        license_detections: unknown[],
         license_detections_map: Map<string, unknown>,
+        license_references: unknown[],
+        license_references_map: Map<string, unknown>,
         license_rule_references: unknown[],
       }
       let TopLevelData: TopLevelDataFormat = null;
@@ -345,54 +313,26 @@ export class WorkbenchDB {
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
           const license_detections: any[] = topLevelData.license_detections || [];
-          const license_detections_map = new Map<string, unknown>(license_detections.map(detection => [detection.identifier, detection]));
+          const license_detections_map = new Map<string, unknown>(license_detections.map(detection => [detection.license_expression, detection]));
           const license_references: any[] = topLevelData.license_references || [];
-          const license_rule_references: any[] = topLevelData.license_rule_references || [];
-
-          TopLevelData = {
-            header, packages, dependencies,
-            license_detections_map, license_references, license_rule_references
-          }
-
-          console.log("Top level data", {header, packages, dependencies, license_detections, license_references, license_rule_references});
-          
           const license_references_mapping = new Map<string, unknown>(
             license_references.map(ref => [ref.key, ref])
           );
+          const license_rule_references: any[] = topLevelData.license_rule_references || [];
           // const license_rule_references_mapping = new Map<string, unknown>(
           //   license_rule_references.map(rule_ref => [rule_ref.identifier, rule_ref])
           // );
-          // console.log("Top level mappings:", license_references_mapping, license_rule_references_mapping);
+
+          TopLevelData = {
+            header, packages, dependencies, license_detections,
+            license_references_map: license_references_mapping, license_detections_map, license_references, license_rule_references
+          }
           
-          // Update matches of all top level license detections to include rule information
-          license_detections.forEach(detection => {
-            if(detection && detection.matches)   // Fallback for old matches   // @TODO - temporary
-            detection.matches.forEach((match: any) => {
-              match.keys = [];
-
-              // @TODO
-              const parsedKeys = parseKeysFromExpression(detection.license_expression);
-              // console.log("Keys:", detection.license_expression, parsedKeys);
-
-              parsedKeys.forEach(key => {
-                const license_reference: any = license_references_mapping.get(key);
-
-                if(!license_reference)  return;
-
-                match.keys.push({
-                  key: key,
-                  licensedb_url: license_reference.licensedb_url,
-                  scancode_url: license_reference.scancode_url,
-                  spdx_license_key: license_reference.spdx_license_key,
-                  spdx_url: license_reference.spdx_url,
-                });
-              });
-            })
-
-            // const rule_reference = license_rule_references_mapping.get(detection.rule_identifier) || {} as any;
-            // const RULE_PROPERTIES = [];
-            // RULE_PROPERTIES.forEach(prop => detection[prop] = rule_reference[prop] || "");
-          });
+          console.log("Parsed Top level data", TopLevelData);
+          
+          // const rule_reference = license_rule_references_mapping.get(detection.rule_identifier) || {} as any;
+          // const RULE_PROPERTIES = [];
+          // RULE_PROPERTIES.forEach(prop => detection[prop] = rule_reference[prop] || "");
 
           interface ParsedJsonHeader {
             tool_name: StringDataType,
@@ -444,10 +384,66 @@ export class WorkbenchDB {
             .then(() => this.db.Dependencies.bulkCreate(dependencies))
             .then(() => this.db.Header.create(parsedHeader))
             .then(header => headerId = Number(header.getDataValue('id')));
-
         })
         .on('data', function(file: any) {
-          console.log("Resource level:", file, TopLevelData);
+          console.log("File", file, TopLevelData, file.license_detections);
+
+          file.license_detections.forEach((detection: any) => {
+            const targetLicenseDetection: any = TopLevelData.license_detections_map.get(detection.license_expression);
+            
+            if(!targetLicenseDetection)
+              return;
+            if(!targetLicenseDetection.file_regions)
+              targetLicenseDetection.file_regions = [];
+            if(!targetLicenseDetection.matches){
+              console.log("Got empty matches for ", targetLicenseDetection);
+              targetLicenseDetection.matches = [];
+            }
+            if(!detection.matches?.length)
+              return;  
+          
+            // console.log(`(Matches: ${targetLicenseDetection.matches.length}) in ${file.path}`, detection, targetLicenseDetection, "->");
+            
+            let min_start_line = detection.matches[0].start_line;
+            let max_end_line = detection.matches[0].end_line;            
+
+            detection.matches.map((match: any) => {
+              min_start_line = Math.min(min_start_line, match.start_line);
+              max_end_line = Math.max(max_end_line, match.end_line);
+              const { license_references_map } = TopLevelData;
+
+              if(!match.keys?.length)
+                match.keys = [];
+          
+              // @TODO
+              const parsedKeys = parseKeysFromExpression(detection.license_expression);
+              // console.log("Keys:", detection.license_expression, parsedKeys);
+          
+              parsedKeys.forEach(key => {
+                const license_reference: any = license_references_map.get(key);
+          
+                if(!license_reference)  return;
+          
+                match.keys.push({
+                  key: key,
+                  licensedb_url: license_reference.licensedb_url,
+                  scancode_url: license_reference.scancode_url,
+                  spdx_license_key: license_reference.spdx_license_key,
+                  spdx_url: license_reference.spdx_url,
+                });
+              });
+
+              match.path = file.path;
+              targetLicenseDetection.matches.push(match);
+            });
+            
+            targetLicenseDetection.file_regions.push({
+              path: file.path,
+              start_line: min_start_line,
+              end_line: max_end_line,
+            })
+            // console.log(`(Matches: ${targetLicenseDetection.matches.length}) Prepared detection in ${file.path}`, detection, targetLicenseDetection);
+          })
           
           if (!rootPath) {
             rootPath = file.path.split('/')[0];
@@ -491,11 +487,11 @@ export class WorkbenchDB {
           }
         })
         .on('end', () => {
-
           // Create license detections at the end, based on match data in files
           promiseChain = promiseChain
             .then(() => {
-              this.db.LicenseDetections.bulkCreate(Array.from(TopLevelData.license_detections_map.values()))
+              const allLicenseDetections = Array.from(TopLevelData.license_detections_map.values());
+              this.db.LicenseDetections.bulkCreate(allLicenseDetections);
             })
 
           // Add root directory into data

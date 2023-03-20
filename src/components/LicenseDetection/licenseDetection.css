@@ -1,3 +1,6 @@
+.license-detecion-entity {
+  height: 100%;
+}
 .license-entity-properties {
   font-size: 15px;
 }
@@ -14,6 +17,6 @@
   max-height: 75vh;
   overflow: scroll;
 }
-.matches-table .ag-root-wrapper.ag-layout-normal {
-  min-height: 130px;
+.matches-table, .file-regions-table {
+  max-height: 30vh;
 }

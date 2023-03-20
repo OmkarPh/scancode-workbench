@@ -20,9 +20,10 @@ import { jsonDataType, JSON_Type } from './databaseUtils';
  export interface LicenseDetectionAttributes {
   identifier: StringDataType,
   license_expression: StringDataType,
-  count: NumberDataType,
+  detection_count: NumberDataType,
   detection_log: JSON_Type,
   matches: JSON_Type,
+  file_regions: JSON_Type,
  }
  
  export default function licenseDetectionModel(sequelize: Sequelize) {
@@ -35,9 +36,10 @@ import { jsonDataType, JSON_Type } from './databaseUtils';
         primaryKey: true,
        },
        license_expression: DataTypes.STRING,
-       count: DataTypes.NUMBER,
+       detection_count: DataTypes.NUMBER,
        detection_log: jsonDataType('detection_log'),
        matches: jsonDataType('matches'),
+       file_regions: jsonDataType('file_regions'),
     }
    )
  }

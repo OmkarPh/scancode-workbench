@@ -3,18 +3,14 @@
   height: 100vh !important;
 }
 
-/* .pane-container .content-pane {
-  
-} */
-
 .file-tree-pane {
   border: 0;
   box-shadow: rgb(177 177 177) 1px 0px 18px -3px;
   overflow: overlay !important;
 }
-.content-pane {
+/* .content-pane {
   overflow: overlay !important;
-}
+} */
 .content-container {
   padding: 10px;
   padding-top: 5px;

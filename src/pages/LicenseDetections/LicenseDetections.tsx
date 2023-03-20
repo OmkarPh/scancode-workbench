@@ -30,11 +30,12 @@ const LicenseDetections = () => {
     db.sync
       .then(async () => {
         const newLicenseDetections = (await db.getAllLicenseDetections()).map(detection => ({
-          count: Number(detection.getDataValue('count')),
+          detection_count: Number(detection.getDataValue('detection_count')),
           identifier: detection.getDataValue('identifier').toString({}),
-          license_expression: detection.getDataValue('license_expression').toString({}),
-          detection_log: JSON.parse(detection.getDataValue('detection_log').toString({})),
+          license_expression: detection.getDataValue('license_expression')?.toString({}),
+          detection_log: JSON.parse(detection.getDataValue('detection_log')?.toString({}) || "[]"),
           matches: JSON.parse(detection.getDataValue('matches')?.toString({}) || "[]"),
+          file_regions: JSON.parse(detection.getDataValue('file_regions')?.toString({}) || "[]"),
         }));
         setLicenseDetections(newLicenseDetections);
         
@@ -97,7 +98,7 @@ const LicenseDetections = () => {
                     </div>
                     <div className='license-count'>
                       <Badge pill className='license-count'>
-                        { licenseDetection.count }
+                        { licenseDetection.detection_count }
                       </Badge>
                     </div>
                   </div>

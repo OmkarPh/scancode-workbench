@@ -7,6 +7,7 @@ import { LicenseDetectionDetails } from '../../pages/LicenseDetections/licenseDe
 
 import './licenseDetection.css'
 import '../../styles/entityCommonStyles.css'
+import { DEFAULT_FILE_REGION_COL_DEF, DetectionFileRegionCols } from './FileRegionTableCols';
 
 interface LicenseDetectionEntityProps {
   licenseDetection: LicenseDetectionDetails | null,
@@ -14,7 +15,7 @@ interface LicenseDetectionEntityProps {
 const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
   const { licenseDetection } = props;
   const matches = licenseDetection?.matches || [];
-  console.log("Matches", matches);
+  const file_regions = licenseDetection?.file_regions || [];
 
   useEffect(() => {
     // if(matches)
@@ -43,27 +44,27 @@ const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
           [
             // [ "License Expression:", licenseDetection.license_expression || "NA" ],
             [ "License Identifier:", licenseDetection.identifier || "NA" ],
-            [ "Instances:", licenseDetection.count || "NA" ],
-            [
-              <>
-                Detection log 
-                {
-                  licenseDetection.detection_log && Array.isArray(licenseDetection.detection_log) ?
-                  <ul>
-                     { 
-                      licenseDetection.detection_log.map((log_item, idx) => (
-                        <li key={String(log_item)+idx}>
-                          { log_item }
-                        </li>
-                      ))
-                     }
-                  </ul>
-                  :
-                  "NA"
-                }
-              </>,
-              ""
-            ],
+            [ "Instances:", (licenseDetection.detection_count || 0).toString() ],
+            ...(
+              licenseDetection.detection_log &&
+              Array.isArray(licenseDetection.detection_log) && licenseDetection.detection_log.length &&
+              [
+                [
+                  "Detection log ",
+                  <>
+                    <ul>
+                      { 
+                        licenseDetection.detection_log.map((log_item, idx) => (
+                          <li key={String(log_item)+idx}>
+                            { log_item }
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </>
+                ]
+              ]
+            )
           ].map(entry => (
             <React.Fragment key={entry[0].toString()}>
               <span className='property'>
@@ -82,17 +83,34 @@ const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
       <br/>
       <br/>
       <br/> */}
+      <br/>
+      Matches:
       <AgGridReact
         rowData={matches}
         columnDefs={DetectionMatchesCols}
         // onGridReady={onGridReady}
         className="ag-theme-alpine ag-grid-customClass matches-table"
+        domLayout='normal'
 
         ensureDomOrder
         enableCellTextSelection
 
         pagination={false}
         defaultColDef={DEFAULT_MATCHES_COL_DEF}
+      />
+      <br/>
+      File regions table:
+      <AgGridReact
+        rowData={file_regions}
+        columnDefs={DetectionFileRegionCols}
+        className="ag-theme-alpine ag-grid-customClass file-regions-table"
+        domLayout='normal'
+
+        ensureDomOrder
+        enableCellTextSelection
+
+        pagination={false}
+        defaultColDef={DEFAULT_FILE_REGION_COL_DEF}
       />
       <br/>
       Raw license detection:

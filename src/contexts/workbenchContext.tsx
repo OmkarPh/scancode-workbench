@@ -22,6 +22,7 @@ import {
   SQLITE_IMPORT_REPLY_FORMAT,
   SQLITE_PATH_FOR_JSON_REQUEST_FORMAT,
   SQLITE_SAVE_REPLY_FORMAT,
+  UTIL_CHANNEL,
 } from "../constants/IpcConnection";
 
 const { version: workbenchVersion } = packageJson;
@@ -195,6 +196,10 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
 
             if(defaultPath)
               updateCurrentPath(defaultPath);
+
+            // Update window title
+            const newlyImportedFileName = sqliteFilePath.split('\\').pop().split('/').pop();
+            ipcRenderer.send(UTIL_CHANNEL.SET_CURRENT_FILE_TITLE, newlyImportedFileName);
             
             if(!preventNavigation)
               navigate(DEFAULT_ROUTE_ON_IMPORT);
@@ -284,6 +289,10 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
 
             if(defaultPath)
               updateCurrentPath(defaultPath);
+
+            // Update window title
+            const newlyImportedFileName = jsonFilePath.split('\\').pop().split('/').pop();
+            ipcRenderer.send(UTIL_CHANNEL.SET_CURRENT_FILE_TITLE, newlyImportedFileName);
 
             if(!preventNavigation)
               navigate(DEFAULT_ROUTE_ON_IMPORT);

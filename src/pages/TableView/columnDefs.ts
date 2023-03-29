@@ -1,4 +1,4 @@
-import { LICENSE_DETECTION_QUERY_KEY } from './../LicenseDetections/LicenseDetections';
+import { QUERY_KEYS } from './../../constants/params';
 import { ColDef, IFilterOptionDef, ValueFormatterParams } from "ag-grid-community";
 import { ROUTES } from "../../constants/routes";
 
@@ -6,7 +6,6 @@ import {
   ListCellRenderer,
   UrlListCellRenderer,
 } from './CustomCellRenderers';
-import { PACKAGE_QUERY_KEY } from '../Packages/Packages';
 
 
 enum CustomComponentKeys {
@@ -78,7 +77,6 @@ interface COLUMNS_LIST {
   detected_license_expression: ColDef,
   detected_license_expression_spdx: ColDef,
   percentage_of_license_text: ColDef,
-  for_license_detections: ColDef,
   license_policy: ColDef,
   license_clues: ColDef,
 
@@ -225,12 +223,12 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
 
   detected_license_expression: {
     field: "detected_license_expression",
-    headerName: "License expression",
+    headerName: "Detected License expression",
     width: 320,
   },
   detected_license_expression_spdx: {
     field: "detected_license_expression_spdx",
-    headerName: "License expression SPDX",
+    headerName: "Detected License expression SPDX",
     width: 320,
   },
   percentage_of_license_text: {
@@ -238,19 +236,10 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     headerName: "License text %",
     width: 120,
   },
-  for_license_detections: {
-    field: "for_license_detections",
-    headerName: "For License detections",
-    cellRenderer: CustomComponentKeys.UrlListCellRenderer,
-    filterParams: {
-      filterOptions: FILTER_OPTIONS.LIST_FILTERS
-    },
-    cellRendererParams: {
-      routerLink: true,
-      urlPrefix:`/${ROUTES.LICENSE_DETECTIONS}?${LICENSE_DETECTION_QUERY_KEY}=`,
-    },
-    width: 320,
-  },
+  // license_detections: {
+  //   field: 'license_detections',
+  //   cellRenderer
+  // },
   license_policy: {
     field: 'license_policy',
     headerName: 'License Policy',
@@ -304,7 +293,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
   },
   package_data_name: {
     field: 'package_data_name',
-    headerName: 'Package Name',
+    headerName: 'Package Data Name',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
     filterParams: {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS
@@ -313,7 +302,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
   },
   package_data_version: {
     field: 'package_data_version',
-    headerName: 'Package Version',
+    headerName: 'Package Data Version',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
     filterParams: {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS
@@ -322,7 +311,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
   },
   package_data_license_expression: {
     field: 'package_data_license_expression',
-    headerName: 'Package License Expression',
+    headerName: 'Package Data Declared License Expression',
     cellRenderer: CustomComponentKeys.ListCellRenderer,
     filterParams: {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS
@@ -347,7 +336,7 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     },
     cellRendererParams: {
       routerLink: true,
-      urlPrefix:`/${ROUTES.PACKAGES}?${PACKAGE_QUERY_KEY}=`,
+      urlPrefix:`/${ROUTES.PACKAGES}?${QUERY_KEYS.PACKAGE}=`,
     },
     width: 320,
   },

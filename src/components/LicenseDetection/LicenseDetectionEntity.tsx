@@ -84,13 +84,11 @@ const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
       <br/>
       <br/> */}
       <br/>
-      Matches:
+      Matches
       <AgGridReact
         rowData={matches}
         columnDefs={DetectionMatchesCols}
-        // onGridReady={onGridReady}
         className="ag-theme-alpine ag-grid-customClass matches-table"
-        domLayout='normal'
 
         ensureDomOrder
         enableCellTextSelection
@@ -99,12 +97,11 @@ const LicenseDetectionEntity = (props: LicenseDetectionEntityProps) => {
         defaultColDef={DEFAULT_MATCHES_COL_DEF}
       />
       <br/>
-      File regions table:
+      File regions
       <AgGridReact
         rowData={file_regions}
         columnDefs={DetectionFileRegionCols}
         className="ag-theme-alpine ag-grid-customClass file-regions-table"
-        domLayout='normal'
 
         ensureDomOrder
         enableCellTextSelection

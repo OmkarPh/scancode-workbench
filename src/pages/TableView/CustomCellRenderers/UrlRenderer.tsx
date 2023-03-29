@@ -9,15 +9,25 @@ interface UrlRendererProps {
 
 const UrlRenderer = (props: UrlRendererProps) => {
   const { value, data, customTextField, customHrefField } = props;
+
+  const hasHref = Boolean(customHrefField ? data[customHrefField] : value);
+  const hasText = Boolean(customTextField ? data[customTextField] : value);
   
-  if(!value)
+  if(!(hasHref || hasText))
     return <></>;
 
   return (
     <>
-      <a href={ customHrefField ? data[customHrefField] || value : value }>
-        { customTextField ? data[customTextField] || value : value }
-      </a>
+      {
+        hasText && !hasHref ?
+        <>
+          { customTextField ? data[customTextField] || value : value }
+        </>
+        :
+        <a href={ customHrefField ? data[customHrefField] || value : value }>
+          { customTextField ? data[customTextField] || value : value }
+        </a>
+      }
     </>
   )
 }

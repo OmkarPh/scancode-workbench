@@ -15,8 +15,8 @@ import PackageEntity from '../../components/PackagesEntityDetails/PackageEntity'
 
 import './packages.css';
 import { useSearchParams } from 'react-router-dom';
+import { QUERY_KEYS } from '../../constants/params';
 
-export const PACKAGE_QUERY_KEY = 'pkg-identifier';
 
 const Packages = () => {
   const workbenchDB = useWorkbenchDB();
@@ -42,7 +42,7 @@ const Packages = () => {
     return targetPackage;
   }
   useEffect(() => {
-    const queriedPackageUid = searchParams.get(PACKAGE_QUERY_KEY);
+    const queriedPackageUid = searchParams.get(QUERY_KEYS.PACKAGE);
     if(!queriedPackageUid)
       return;
     if(packagesWithDeps && packagesWithDeps.length)
@@ -69,7 +69,7 @@ const Packages = () => {
       .then(async () => {
         const packages = await db.getAllPackages();
         const deps = await db.getAllDependencies();
-        // console.log("Packages", packages);
+        console.log("Raw Packages", packages);
         // console.log("Deps", deps);
 
         // const type_other = 'type-other';
@@ -112,8 +112,8 @@ const Packages = () => {
               repository_homepage_url: packageInfo.getDataValue('repository_homepage_url')?.toString({}) || null,
               repository_download_url: packageInfo.getDataValue('repository_download_url')?.toString({}) || null,
               api_data_url: packageInfo.getDataValue('api_data_url')?.toString({}) || null,
-              datafile_paths: JSON.parse(packageInfo.getDataValue('datafile_paths').toString({})),
-              datasource_ids: JSON.parse(packageInfo.getDataValue('datasource_ids').toString({})),
+              datafile_paths: JSON.parse(packageInfo.getDataValue('datafile_paths')?.toString({}) || "[]") || [],
+              datasource_ids: JSON.parse(packageInfo.getDataValue('datasource_ids')?.toString({}) || "[]") || [],
               purl: packageInfo.getDataValue('purl').toString({}),
             }
           ]
@@ -155,7 +155,7 @@ const Packages = () => {
           repository_homepage_url: null,
           repository_download_url: null,
           api_data_url: null,
-          datafile_paths: {},
+          datafile_paths: [],
           datasource_ids: [],
           purl: null,
         };
@@ -206,7 +206,7 @@ const Packages = () => {
         setExpandedPackages([]);
 
         // Select package based on query or default
-        const queriedPackageUid = searchParams.get(PACKAGE_QUERY_KEY);
+        const queriedPackageUid = searchParams.get(QUERY_KEYS.PACKAGE);
         const queriedPackage = parsedPackageWithDeps.find(packageInfo => packageInfo.package_uid === queriedPackageUid);
         if(queriedPackage){
           activatePackage(queriedPackage);

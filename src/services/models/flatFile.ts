@@ -33,9 +33,9 @@ export interface FlatFileAttributes {
   detected_license_expression: StringDataType,
   detected_license_expression_spdx: StringDataType,
   percentage_of_license_text: NumberDataType,
-  for_license_detections: JSON_Type,
   license_policy: JSON_Type,
   license_clues: JSON_Type,
+  license_detections: JSON_Type,
 
   email: JSON_Type,
   email_start_line: JSON_Type,
@@ -118,8 +118,8 @@ export default function flatFileModel(sequelize: Sequelize) {
       detected_license_expression_spdx: DataTypes.STRING,
       percentage_of_license_text: DataTypes.NUMBER,
       license_clues: jsonDataType('license_clues'),
-      for_license_detections: jsonDataType('for_license_detections'),
       license_policy: jsonDataType('license_policy'),
+      license_detections: jsonDataType('license_detections'),
 
       email: jsonDataType('email'),
       email_start_line: jsonDataType('email_start_line'),
@@ -196,7 +196,6 @@ interface FlattenedFile {
   detected_license_expression: string,
   detected_license_expression_spdx: string,
   percentage_of_license_text: number,
-  for_license_detections: unknown[],
   license_policy: unknown[],
   license_clues: unknown[],
 
@@ -268,7 +267,6 @@ export function flattenFile(file: any): any {
     detected_license_expression_spdx: file.detected_license_expression_spdx,
     percentage_of_license_text: file.percentage_of_license_text,
     license_clues: file.license_clues,    // TODO - Dunno type of this yet
-    for_license_detections: file.for_license_detections,
 
     license_policy: getLicensePolicyLabel(file.license_policy),
     email: getValues(file.emails, 'email'),

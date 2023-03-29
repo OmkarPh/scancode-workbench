@@ -51,10 +51,45 @@ export function parseKeysFromExpression(expression: string){
   return tokens.filter(token => token.length && !AVOID_KEYWORDS.has(token));
 }
 
+
+// To test 'license-expressions' library
+function flattenIntoLicenseKeysUtil(parsedExpression: any, licenses: string[]){
+  // LicenseInfo & ConjunctionInfo & LicenseRef
+  if (parsedExpression.license){
+    licenses.push(parsedExpression.license);
+  }
+  if(parsedExpression.licenseRef){
+    licenses.push(parsedExpression.licenseRef);
+  }
+  if(parsedExpression.exception){
+    licenses.push(parsedExpression.exception);
+  }
+  
+  if (parsedExpression.conjunction) {
+    flattenIntoLicenseKeysUtil(parsedExpression.left, licenses);
+    if (parsedExpression.conjunction === 'or' || parsedExpression.conjunction === 'and') {
+        flattenIntoLicenseKeysUtil(parsedExpression.right, licenses);
+    }
+  }
+}
+export function parseKeysFromLibraryExpression(expression: string){
+  console.log(parse(expression));
+  const keys: string[] = [];
+  flattenIntoLicenseKeysUtil(parse(expression), keys);
+  return keys;
+}
+
+
 const testCases = [
   "GPL-3.0+", "MIT OR (Apache-2.0 AND 0BSD)", "gpl-2.0-plus WITH ada-linking-exception",
   "zlib", "lgpl-2.1", "apache-1.1"   // not compatible for our use case
 ]
 testCases.forEach(expression => {
-  console.log(expression, { tokens: parseTokensFromExpression(expression), keys: parseKeysFromExpression(expression)});
+  // console.log(expression, { tokens: parseTokensFromExpression(expression), keys: parseKeysFromExpression(expression)});
+  console.log("Parsers", {
+    manualKeys: parseKeysFromExpression(expression),
+    libKeys: parseKeysFromLibraryExpression(expression)
+  });
+  // console.log("Manual parser", expression, parseKeysFromExpression(expression));
+  // console.log("Lib parser", expression, parseKeysFromLibraryExpression(expression));
 })

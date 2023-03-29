@@ -11,7 +11,7 @@ import './FileTree.css';
 
 const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
   const workbenchDB = useWorkbenchDB();
-  const { db, initialized, importedSqliteFilePath, updateCurrentPath } = workbenchDB;
+  const { db, initialized, importedSqliteFilePath, currentPath, updateCurrentPath } = workbenchDB;
 
   const [treeData, setTreeData] = useState<DataNode[] | null>(null);
 
@@ -34,6 +34,8 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
     // console.log("FileTree: selected path:", path);
     updateCurrentPath(path);
   }
+
+  console.log("Current path", currentPath);
 
   if(!treeData){
     return (

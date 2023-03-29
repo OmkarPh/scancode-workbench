@@ -1,5 +1,8 @@
 import ReactJson from '@microlink/react-json-view';
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
+import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { DependencyDetails, PackageDetails } from '../../pages/Packages/packageDefinitions'
 
 import '../../styles/entityCommonStyles.css';
@@ -11,7 +14,16 @@ interface PackageEntityProps {
 }
 const PackageEntity = (props: PackageEntityProps) => {
   const { goToDependency, package: activePackage} = props;
+  const navigate = useNavigate();
+  const { updateCurrentPath } = useWorkbenchDB();
+  
+  console.log("Active package", activePackage);
 
+  function goToFile(path: string){
+    updateCurrentPath(path);
+    navigate(ROUTES.TABLE_VIEW);
+  }
+  
   if(!activePackage){
     return (
       <div>
@@ -61,6 +73,29 @@ const PackageEntity = (props: PackageEntityProps) => {
               </span>
               <br/>
             </React.Fragment>
+          ))
+        }
+      </div>
+      <br/>
+      <b>
+        {
+          activePackage.datafile_paths.length === 0 ? "No data files !"
+          : `Data file paths:`
+        } 
+      </b>
+      <br/>
+      <div className='deps-list'>
+        {
+          activePackage.datafile_paths.map(datafile_path => (
+            // <a
+            //   className='deps-link'
+            //   key={datafile_path}
+            //   onClick={() => goToFile(datafile_path)}
+            // >
+            <>
+              { datafile_path }
+            </>
+            // </a>
           ))
         }
       </div>

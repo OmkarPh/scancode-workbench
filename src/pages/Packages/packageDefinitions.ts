@@ -49,7 +49,7 @@ export interface PackageDetails {
   repository_homepage_url: string | null,
   repository_download_url: string | null,
   api_data_url: string | null,
-  datafile_paths: unknown,
+  datafile_paths: string[],
   datasource_ids: string[],
   purl: string,
 }

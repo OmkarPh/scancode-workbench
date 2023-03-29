@@ -4,12 +4,11 @@ import { Badge, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { ThreeDots } from 'react-loader-spinner';
 import { useSearchParams } from 'react-router-dom';
 import LicenseDetectionEntity from '../../components/LicenseDetection/LicenseDetectionEntity';
+import { QUERY_KEYS } from '../../constants/params';
 import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { LicenseDetectionDetails } from './licenseDefinitions';
 
 import "./LicenseDetection.css";
-
-export const LICENSE_DETECTION_QUERY_KEY = 'identifier';
 
 const LicenseDetections = () => {
   const [searchParams] = useSearchParams();
@@ -20,7 +19,7 @@ const LicenseDetections = () => {
   useEffect(() => {
     if(!licenseDetections || !licenseDetections.length)
       return;
-    const queriedDetectionIdentifier = searchParams.get(LICENSE_DETECTION_QUERY_KEY);
+    const queriedDetectionIdentifier = searchParams.get(QUERY_KEYS.LICENSE_DETECTION);
     const foundDetection = licenseDetections.find(detection => detection.identifier == queriedDetectionIdentifier);
     if(foundDetection)
       setActiveLicenseDetection(foundDetection);
@@ -39,7 +38,7 @@ const LicenseDetections = () => {
         }));
         setLicenseDetections(newLicenseDetections);
         
-        const queriedDetectionIdentifier = searchParams.get(LICENSE_DETECTION_QUERY_KEY);
+        const queriedDetectionIdentifier = searchParams.get(QUERY_KEYS.LICENSE_DETECTION);
         const foundDetection = newLicenseDetections.find(detection => detection.identifier == queriedDetectionIdentifier);
         if(foundDetection)
           setActiveLicenseDetection(foundDetection);

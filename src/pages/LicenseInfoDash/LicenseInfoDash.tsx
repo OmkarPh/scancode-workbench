@@ -46,7 +46,11 @@ const LicenseInfoDash = () => {
     }))
       .then((files) =>{
         const fileIDs = files.map(file => file.getDataValue('id'));
-
+        db.sync.then(db => {
+          console.log(db.LicenseExpression, db);
+          
+        })
+        
         // Query and prepare chart for license expression
         db.sync
           .then(db => db.LicenseExpression.findAll({where: { fileId: fileIDs }}))
@@ -62,7 +66,7 @@ const LicenseInfoDash = () => {
 
         // Query and prepare chart for license keys
         db.sync
-          .then((db) => db.License.findAll({where: { fileId: fileIDs }}))
+          .then((db) => db.LicenseDetections.findAll({where: { fileId: fileIDs }}))
           .then(licenses => {
 
             // Prepare aggregate data

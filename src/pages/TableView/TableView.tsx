@@ -107,7 +107,17 @@ const TableView = () => {
         const filterPromise = db.FlatFile.aggregate(
           columnKey as (keyof FlatFileAttributes),
           'DISTINCT',
-          { plain: false },
+          {
+            plain: false,
+            where: {
+              path: {
+                [Op.or]: [
+                  { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+                  { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
+                ]
+              }
+            },
+          },
         )
           .then((uniqueValues: { DISTINCT: string }[]) => {
             const parsedUniqueValues = uniqueValues.map((val) => val.DISTINCT);
@@ -139,7 +149,7 @@ const TableView = () => {
         .then(() => {
           // console.log(
           //   "Generated unique set filters:",
-          //   generatedColDefs.map(coldef => coldef.filterParams.options)
+          //   columnDefs.map(coldef => coldef.filterParams)
           // );
           setColumnDefs(prevColDefs => {
             if(prevColDefs.length)
@@ -149,9 +159,13 @@ const TableView = () => {
           // setDefaultColumnGroup();
         });
     });
+  }, [db, currentPath]);
 
-
-  }, [db]);
+  useEffect(() => {
+    if(gridApi){
+      gridApi.refreshHeader();
+    }
+  }, [columnDefs]);
 
   return (
     <div style={{ height: "100%", minHeight: "90vh" }}>

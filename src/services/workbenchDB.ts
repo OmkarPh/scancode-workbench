@@ -309,7 +309,7 @@ export class WorkbenchDB {
         .on('header', (topLevelData: any) => {
           console.log("Top level data:", topLevelData);
           
-          const header = topLevelData.headers[0];
+          const header = topLevelData.headers ? topLevelData.headers[0] || {} : {};
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
           const license_detections: any[] = topLevelData.license_detections || [];
@@ -330,52 +330,7 @@ export class WorkbenchDB {
           
           console.log("Parsed Top level data", TopLevelData);
           
-          // const rule_reference = license_rule_references_mapping.get(detection.rule_identifier) || {} as any;
-          // const RULE_PROPERTIES = [];
-          // RULE_PROPERTIES.forEach(prop => detection[prop] = rule_reference[prop] || "");
-
-          interface ParsedJsonHeader {
-            tool_name: StringDataType,
-            tool_version: StringDataType,
-            notice: StringDataType,
-            duration: DataTypes.DoubleDataType,
-            options: JSON_Type,
-            input: JSON_Type,
-            files_count: IntegerDataType,
-            output_format_version: StringDataType,
-            spdx_license_list_version: StringDataType,    // @QUERY - Justify need for this
-            operating_system: StringDataType,
-            cpu_architecture: StringDataType,
-            platform: StringDataType,
-            platform_version: StringDataType,
-            python_version: StringDataType,
-            workbench_version: StringDataType,
-            workbench_notice: StringDataType,
-            header_content: StringDataType,
-          }
-
-          const input = header.options?.input || [];
-          delete header.options?.input;
-          const parsedHeader: ParsedJsonHeader = {
-            tool_name: header.tool_name,
-            tool_version: header.tool_version,
-            notice: header.notice,
-            duration: header.duration,
-            options: header.options || {},
-            input,
-            files_count: header.extra_data.files_count,
-            output_format_version: header.output_format_version,
-            spdx_license_list_version: header.extra_data?.spdx_license_list_version,
-            operating_system: header.extra_data?.system_environment?.operating_system,
-            cpu_architecture: header.extra_data?.system_environment?.cpu_architecture,
-            platform: header.extra_data?.system_environment?.platform,
-            platform_version: header.extra_data?.system_environment?.platform_version,
-            python_version: header.extra_data?.system_environment?.python_version,
-            workbench_version: version as unknown as StringDataType,
-            workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as StringDataType,
-            header_content: JSON.stringify(header, undefined, 2) as unknown as StringDataType,   // FIXME
-          };
-
+          const parsedHeader = this._parseHeader(workbenchVersion, header);
           console.log("Scan header info:", parsedHeader);
           
           files_count = Number(parsedHeader.files_count);
@@ -388,7 +343,7 @@ export class WorkbenchDB {
         .on('data', function(file: any) {
           console.log("File", file, TopLevelData, file.license_detections);
 
-          file.license_detections.forEach((detection: any) => {
+          file?.license_detections?.forEach((detection: any) => {
             const targetLicenseDetection: any = TopLevelData.license_detections_map.get(detection.license_expression);
             
             if(!targetLicenseDetection)
@@ -443,7 +398,10 @@ export class WorkbenchDB {
               end_line: max_end_line,
             })
             // console.log(`(Matches: ${targetLicenseDetection.matches.length}) Prepared detection in ${file.path}`, detection, targetLicenseDetection);
-          })
+          });
+          // @TODO - 
+          // file.license_detections = file?.license_detections.map(detection => detection.license_expression);
+
           
           if (!rootPath) {
             rootPath = file.path.split('/')[0];
@@ -461,11 +419,8 @@ export class WorkbenchDB {
           if (files.length >= batchSize) {
             // Need to set a new variable before handing to promise
             this.pause();
-            if(file.path == 'samples/JGroups/EULA')
-              console.log("Flat File before: ", file);
-              // if(file.path == 'samples/JGroups/EULA')
-              //   console.log("Creating flat file eula", file);
             
+            // @TODO - is this required explicitly ?
             promiseChain = promiseChain
               .then(() => primaryPromise._batchCreateFiles(files, headerId))
               .then(() => {
@@ -521,6 +476,53 @@ export class WorkbenchDB {
         })
         .on('error', (e: unknown) => reject(e))
     });
+  }
+
+  _parseHeader(workbenchVersion: string, header: any) {
+    interface ParsedJsonHeader {
+      tool_name: StringDataType,
+      tool_version: StringDataType,
+      notice: StringDataType,
+      duration: DataTypes.DoubleDataType,
+      options: JSON_Type,
+      input: JSON_Type,
+      files_count: IntegerDataType,
+      output_format_version: StringDataType,
+      spdx_license_list_version: StringDataType,    // @QUERY - Justify need for this
+      operating_system: StringDataType,
+      cpu_architecture: StringDataType,
+      platform: StringDataType,
+      platform_version: StringDataType,
+      python_version: StringDataType,
+      workbench_version: StringDataType,
+      workbench_notice: StringDataType,
+      header_content: StringDataType,
+    }
+
+    const input = header.options?.input || [];
+    delete header.options?.input;
+    const parsedHeader: ParsedJsonHeader = {
+      tool_name: header.tool_name,
+      tool_version: header.tool_version,
+      notice: header.notice,
+      duration: header.duration,
+      options: header?.options || {},
+      input,
+      files_count: header.extra_data?.files_count,
+      output_format_version: header.output_format_version,
+      spdx_license_list_version: header.extra_data?.spdx_license_list_version,
+      operating_system: header.extra_data?.system_environment?.operating_system,
+      cpu_architecture: header.extra_data?.system_environment?.cpu_architecture,
+      platform: header.extra_data?.system_environment?.platform,
+      platform_version: header.extra_data?.system_environment?.platform_version,
+      python_version: header.extra_data?.system_environment?.python_version,
+      workbench_version: workbenchVersion as unknown as StringDataType,
+      workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as StringDataType,
+      header_content: JSON.stringify(header, undefined, 2) as unknown as StringDataType,   // FIXME
+    };
+
+    console.log("Scan header info:", parsedHeader);
+    return parsedHeader;
   }
 
   _batchCreateFiles(files: any, headerId: number) {

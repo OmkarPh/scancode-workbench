@@ -108,11 +108,12 @@ interface ListComponentProps {
   value: string,
   routerLink?: boolean,
   urlPrefix?: string,
+  urlSuffix?: string,
   customDisplayText?: string,
 }
 const LinkComponent: FunctionComponent<ListComponentProps> = (props) => {
-  const { value, routerLink, urlPrefix, customDisplayText } = props;
-  const URL = (urlPrefix || "") + value;
+  const { value, routerLink, urlPrefix, urlSuffix, customDisplayText } = props;
+  const URL = (urlPrefix || "") + value + (urlSuffix || "");
 
   return (
     <>

@@ -13,8 +13,8 @@ interface ScanInfo {
   tool_version: string,
   notice: string,
   duration: number,
-  options: string,
-  input: string,
+  options: [string, string][],
+  input: string[],
   files_count: number,
   output_format_version: string,
   spdx_license_list_version: string,
@@ -45,6 +45,7 @@ function parseIfValidJson(str: unknown){
 const ScanInfo = () => {
   const workbenchDB = useWorkbenchDB();
   const [parsedScanInfo, setParsedScanInfo] = useState<ScanInfo | null>(null);
+  console.log("Parsed scan info", parsedScanInfo);
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
@@ -62,8 +63,8 @@ const ScanInfo = () => {
               tool_version: rawInfo.getDataValue('tool_version').toString({}) || "",
               notice: rawInfo.getDataValue('notice').toString({}) || "",
               duration: Number(rawInfo.getDataValue('duration')),
-              options: rawInfo.getDataValue('options')?.toString({}) || "",
-              input: rawInfo.getDataValue('input')?.toString({}) || "",
+              options: Object.entries(parseIfValidJson(rawInfo.getDataValue('options')?.toString({})) || []) || [],
+              input: parseIfValidJson(rawInfo.getDataValue('input')?.toString({})) || [],
               files_count: Number(rawInfo.getDataValue('files_count')),
               output_format_version: rawInfo.getDataValue('output_format_version')?.toString({}) || "",
               spdx_license_list_version: rawInfo.getDataValue('spdx_license_list_version')?.toString({}) || "",
@@ -100,11 +101,11 @@ const ScanInfo = () => {
 
             <InfoEntry
               name='Input'
-              show={parsedScanInfo.input && parseIfValidJson(parsedScanInfo.input) > 0}
+              show={parsedScanInfo.input && parsedScanInfo.input.length > 0}
             >
               <ul>
                 {
-                  (parseIfValidJson(parsedScanInfo.input) || []).map((value: string, idx: number) => (
+                  (parsedScanInfo.input || []).map((value: string, idx: number) => (
                     <li key={value+idx}>
                       { value }
                     </li>
@@ -115,12 +116,12 @@ const ScanInfo = () => {
 
             <InfoEntry
               name='Options'
-              show={parsedScanInfo.options && parseIfValidJson(parsedScanInfo.options) > 0}
+              show={parsedScanInfo.options && parsedScanInfo.options.length>0}
             >
               <table className='options-table'>
                 <tbody>
                   {
-                    Object.entries(parseIfValidJson(parsedScanInfo.options) || []).map(([key, value]) => (
+                    parsedScanInfo.options.map(([key, value]) => (
                       <tr key={key}>
                         <td>
                           { key }
@@ -185,49 +186,11 @@ const ScanInfo = () => {
                 displayDataTypes={false}
               />
             </InfoEntry>
-            
-
-            {/* {
-              Object.entries(parsedScanInfo).map(([key, value]) => {
-                const parsedValue = parseIfValidJson(value);
-                // console.log("parsed value", parsedValue, ", og:", value);
-                
-                return (
-                  <tr key={key}>
-                    <td> { key } </td>
-                    <td>
-                      {
-                        // Array.isArray()
-                      }
-                      {
-                        parsedValue ?
-                        Array.isArray(parsedValue) ?
-                        <ul>
-                          {
-                            parsedValue.map(value => (
-                              <li>
-                                { value }
-                              </li>
-                            ))
-                          }
-                        </ul>
-                        :
-                        <ReactJson
-                          src={parsedValue}
-                          enableClipboard={false}
-                          displayDataTypes={false}
-                        />
-                        : value
-                      }
-                    </td>
-                  </tr>
-                )
-              })
-            } */}
-
           </tbody>
         </table>
-        : <h5>Import JSON / string first</h5>
+        : <h5>
+          No header data available in this scan
+        </h5>
       }
     </div>
   )

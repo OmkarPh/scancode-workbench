@@ -11,6 +11,7 @@ import {
   SQLITE_IMPORT_REPLY_FORMAT,
   SQLITE_SAVE_REPLY_FORMAT,
   SQLITE_PATH_FOR_JSON_REQUEST_FORMAT,
+  UTIL_CHANNEL,
 } from './constants/IpcConnection';
 
 export function chooseSqlitePathForJsonImport(mainWindow: BrowserWindow, jsonFilePath: string){
@@ -31,8 +32,8 @@ export function chooseSqlitePathForJsonImport(mainWindow: BrowserWindow, jsonFil
     title: 'Save a SQLite Database File',
     defaultPath: defaultPath,
     filters: [{
-    name: 'SQLite File',
-    extensions: ['sqlite']
+      name: 'SQLite File',
+      extensions: ['sqlite']
     }]
   }).then((sqliteFile) => {
     const sqliteFilePath = sqliteFile.filePath;
@@ -115,6 +116,11 @@ export function showErrorDialog(err: ErrorInfo){
   );
 }
 
+export function setCurrentFileTitle(mainWindow: BrowserWindow, title: string){
+  const titleString = "Scancode Workbench" + (title ? ` - ${title}` : "");
+  mainWindow.setTitle(titleString);
+}
+
 export function setUpIpcListeners(mainWindow: BrowserWindow){
   ipcMain.on(OPEN_DIALOG_CHANNEL.JSON, () => importJsonFile(mainWindow));
   ipcMain.on(
@@ -124,5 +130,10 @@ export function setUpIpcListeners(mainWindow: BrowserWindow){
   );
   ipcMain.on(OPEN_DIALOG_CHANNEL.SQLITE, () => openSqliteFile(mainWindow));
   ipcMain.on(OPEN_DIALOG_CHANNEL.SAVE_SQLITE, () => saveSqliteFile(mainWindow));
+  ipcMain.on(UTIL_CHANNEL.SET_CURRENT_FILE_TITLE, (_, title: string) => setCurrentFileTitle(mainWindow, title));
   ipcMain.on(OPEN_ERROR_DIALOG_CHANNEL, (_, err: ErrorInfo) => showErrorDialog(err));
+}
+
+export function setUpWindowListeners(mainWindow: BrowserWindow){
+  mainWindow.on('ready-to-show', () => setCurrentFileTitle(mainWindow, ""));
 }

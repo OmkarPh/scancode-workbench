@@ -34,7 +34,7 @@ const LicenseInfoDash = () => {
     if(!initialized || !db || !currentPath)
       return;
 
-    db.sync.then(db => db.File.findAll({
+    db.sync.then(db => db.FlatFile.findAll({
       where: {
         path: {
           [Op.or]: [
@@ -43,59 +43,51 @@ const LicenseInfoDash = () => {
           ]
         }
       },
-      // attributes: ['id'],
+      attributes: ['id', 'license_detections'],
     }))
-      .then((files) =>{
-        const fileIDs = files.map(file => file.getDataValue('id'));
-        db.sync.then(db => {
-          console.log(db.LicenseExpression, db);
-          
-        })
+    .then((flatFiles) =>{
+        const fileIDs = flatFiles.map(flatFile => flatFile.getDataValue('id'));
+
+        const filesWithDetections = flatFiles.map(
+          flatFile => JSON.parse(flatFile.getDataValue('license_detections')?.toString({}) || "[]")
+        ).filter(detections => detections.length);
+        setScanData(oldScanData => ({
+          ...oldScanData,
+          totalLicenseFiles: filesWithDetections.length,
+        }));
         
         // Query and prepare chart for license expression
         db.sync
           .then(db => db.LicenseExpression.findAll({where: { fileId: fileIDs }}))
-          .then((expressions) => expressions.map(
-            expression => expression.getDataValue('license_expression') || NO_VALUE_DETECTED_LABEL
-          ))
-          .then((expressions) => {
+          .then(license_expressions => {
+            const expressions = license_expressions.map(
+              expression => expression.getDataValue('license_expression') || NO_VALUE_DETECTED_LABEL
+            );
             // Prepare chart for license expressions
             const { chartData } = formatChartData(expressions, 'expressions');
-            // console.log("Result expressions:", chartData);
             setLicenseExpressionData(chartData);
-          });
 
-        // Query and prepare chart for license keys
-        db.sync
-          .then((db) => db.LicenseDetections.findAll({where: { fileId: fileIDs }}))
-          .then(licenses => {
-
-            // Prepare aggregate data
-            const licenseFileIDs = licenses.map((val) => val.getDataValue('fileId'));
-            const spdxKeys = licenses.map((val) => val.getDataValue('spdx_license_key'));
+            const license_keys: string[] = [];
+            const license_keys_spdx: string[] = [];
+            license_expressions.forEach(expression => {
+              license_keys.push(
+                ...JSON.parse((expression.getDataValue('license_keys') || "[]").toString({}))
+              );
+              license_keys_spdx.push(
+                ...JSON.parse((expression.getDataValue('license_keys_spdx') || "[]").toString({}))
+              );
+            })
             
-            // console.log('All licenses', licenses);
-            // console.log("LicensefileIds", licenseFileIDs);
-
+            // Prepare chart for license & spdx keys
             setScanData(oldScanData => ({
               ...oldScanData,
-              totalLicenseFiles: (new Set(licenseFileIDs)).size,
-              totalSPDXLicenses: (new Set(spdxKeys)).size,
+              totalLicenses: (new Set(license_keys)).size,
+              totalSPDXLicenses: (new Set(license_keys_spdx)).size
             }));
 
-            return licenses;
-          })
-          .then((licenses) => licenses.map(val => val.getDataValue('key') || NO_VALUE_DETECTED_LABEL))
-          .then(keys => {
-            // Prepare chart for license keys
-            const { chartData, untrimmedLength } = formatChartData(keys, 'keys');
-            // console.log("License keys:", chartData);
-            // console.log("licensekeys untrimmed length: ", untrimmedLength);
-
-            // Prepare aggregate data
-            setScanData(oldScanData => ({...oldScanData, totalLicenses: untrimmedLength}));
-            setLicenseKeyData(chartData);
-          })
+            const { chartData: licenseKeysChartData } = formatChartData(license_keys, 'license_keys');
+            setLicenseKeyData(licenseKeysChartData);
+          });
           
         // Query and prepare chart for license policy
         db.sync

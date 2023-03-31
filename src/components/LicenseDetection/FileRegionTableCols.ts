@@ -10,7 +10,7 @@ export const DEFAULT_FILE_REGION_COL_DEF: ColDef = {
   autoHeight: true,
   wrapHeaderText: true,
   flex: 1,
-  cellStyle: { "white-space": "normal" },
+  cellStyle: { "whiteSpace": "normal" },
 }
 
 export const DetectionFileRegionCols: ColDef[] = [

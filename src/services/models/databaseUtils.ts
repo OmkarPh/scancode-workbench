@@ -43,13 +43,15 @@ export function parseTokensFromExpression(expression: string){
   return tokens;
 }
 export function parseKeysFromExpression(expression: string){
-  const AVOID_KEYWORDS = new Set(['WITH', 'OR', 'AND']);
+  const AVOID_KEYWORDS = new Set(['WITH', 'OR', 'AND', '(', ')']);
 
   const tokens = parseTokensFromExpression(expression);
   // console.log("Tokens", tokens);
   
-  return tokens.filter(token => token.length && !AVOID_KEYWORDS.has(token));
+  return tokens.filter(token => token.trim().length && token.length && !AVOID_KEYWORDS.has(token.trim()));
 }
+
+
 
 
 // To test 'license-expressions' library
@@ -72,10 +74,10 @@ function flattenIntoLicenseKeysUtil(parsedExpression: any, licenses: string[]){
     }
   }
 }
-export function parseKeysFromLibraryExpression(expression: string){
-  console.log(parse(expression));
+function parseKeysFromLibraryExpression(expression: string){
+  // console.log(parse(expression));
   const keys: string[] = [];
-  flattenIntoLicenseKeysUtil(parse(expression), keys);
+  flattenIntoLicenseKeysUtil(parse(expression, { upgradeGPLVariants: false, strictSyntax: false }), keys);
   return keys;
 }
 
@@ -87,9 +89,17 @@ const testCases = [
 testCases.forEach(expression => {
   // console.log(expression, { tokens: parseTokensFromExpression(expression), keys: parseKeysFromExpression(expression)});
   console.log("Parsers", {
-    manualKeys: parseKeysFromExpression(expression),
-    libKeys: parseKeysFromLibraryExpression(expression)
+    expectedKeys: parseKeysFromExpression(expression),
+    parsedKeysUsingLibraryParser: parseKeysFromLibraryExpression(expression)
   });
   // console.log("Manual parser", expression, parseKeysFromExpression(expression));
   // console.log("Lib parser", expression, parseKeysFromLibraryExpression(expression));
 })
+// console.log(parseTokensFromExpression('GPL-3.0+'));
+// console.log(parseTokensFromExpression('lgpl-2.1'));
+// console.log(parseTokensFromExpression('apache-1.1'));
+
+// console.log(parse('GPL-3.0+'));
+// console.log(parse('apache-1.1', { strictSyntax: false, upgradeGPLVariants: false }));
+// console.log(parse('lgpl-2.1'));
+

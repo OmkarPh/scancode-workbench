@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import React, { useEffect, useState } from 'react'
-import { ColDef, GridApi } from 'ag-grid-community';
+import { ColDef, ColumnMovedEvent, GridApi } from 'ag-grid-community';
 
 import AgDataTable from './AgDataTable';
 import CoreButton from '../../components/CoreButton/CoreButton';
@@ -227,6 +227,11 @@ const TableView = () => {
       <AgDataTable
         gridApi={gridApi}
         updateGridApi={setGridApi}
+        onColumnMoved={(event: ColumnMovedEvent<any>) => {
+          // @TODO
+          // console.log("Column moved", event);
+          
+        }}
         columnDefs={columnDefs}
         tableData={tableData}
       />

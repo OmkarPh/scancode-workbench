@@ -38,7 +38,7 @@ const FileTree = (props: React.HTMLProps<HTMLDivElement>) => {
     updateCurrentPath(path, pathType);
   }
 
-  console.log("Current path & type", currentPath, currentPathType);
+  // console.log("Current path & type", currentPath, currentPathType);
 
   if (!treeData) {
     return (

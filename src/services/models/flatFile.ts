@@ -190,18 +190,19 @@ export default function flatFileModel(sequelize: Sequelize) {
 //  *
 interface FlattenedFile {
   path: string;
-  parent: string,
+  parent: StringDataType,
   copyright_statements: unknown[],
   copyright_holders: unknown[],
   copyright_authors: unknown[],
   copyright_start_line: unknown[],
   copyright_end_line: unknown[],
 
-  detected_license_expression: string,
-  detected_license_expression_spdx: string,
+  detected_license_expression: StringDataType,
+  detected_license_expression_spdx: StringDataType,
   percentage_of_license_text: number,
   license_policy: unknown[],
   license_clues: unknown[],
+  license_detections: unknown[],
 
   email: unknown[],
   email_start_line: unknown[],
@@ -209,17 +210,17 @@ interface FlattenedFile {
   url: unknown[],
   url_start_line: unknown[],
   url_end_line: unknown[],
-  type: string,
-  name: string,
-  extension: string,
-  date: string,
-  size: string,
-  sha1: string,
-  md5: string,
+  type: StringDataType,
+  name: StringDataType,
+  extension: StringDataType,
+  date: StringDataType,
+  size: StringDataType,
+  sha1: StringDataType,
+  md5: StringDataType,
   file_count: IntegerDataType
-  mime_type: string,
-  file_type: string,
-  programming_language: string,
+  mime_type: StringDataType,
+  file_type: StringDataType,
+  programming_language: StringDataType,
   for_packages: unknown[],
   is_binary: boolean,
   is_text: boolean,
@@ -258,10 +259,10 @@ interface FlattenedFile {
   package_data_dependencies: unknown[],
   package_data_related_packages: unknown[],
 }
-export function flattenFile(file: any): any { 
+export function flattenFile(file: any): FlattenedFile { 
   return {
     path: file.path,
-    parent: parentPath(file.path),
+    parent: parentPath(file.path) as any,
     copyright_statements: getCopyrightValues(file.copyrights, 'copyright'),
     copyright_holders: getCopyrightValues(file.holders, 'holder'),
     copyright_authors: getCopyrightValues(file.authors, 'author'),
@@ -273,8 +274,9 @@ export function flattenFile(file: any): any {
     detected_license_expression_spdx: file.detected_license_expression_spdx,
     percentage_of_license_text: file.percentage_of_license_text,
     license_clues: file.license_clues,    // TODO - Dunno type of this yet
-
     license_policy: getLicensePolicyLabel(file.license_policy),
+    license_detections: file.license_detections,
+
     email: getValues(file.emails, 'email'),
     email_start_line: getValues(file.emails, 'start_line'),
     email_end_line: getValues(file.emails, 'end_line'),

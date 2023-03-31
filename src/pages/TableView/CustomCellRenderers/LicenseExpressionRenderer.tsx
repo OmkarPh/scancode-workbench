@@ -26,11 +26,8 @@ const LicenseExpressionRenderer = (props: LicenseExpressionRendererProps) => {
   const { spdxLicense, data } = props;
 
   const { license_expression, keys } = data;
-  console.log(license_expression, keys);
 
-  const parsedComponents = useMemo<ParsedTokens[]>(() => {
-    console.log("Parsing components", license_expression, keys, data);
-    
+  const parsedComponents = useMemo<ParsedTokens[]>(() => {    
     if(!license_expression || !keys)
       return [];
 
@@ -52,8 +49,7 @@ const LicenseExpressionRenderer = (props: LicenseExpressionRendererProps) => {
       }
       return { value: token }
     });
-
-    console.log("Parsed components", newParsedComponents);
+    // console.log("Parsed components", newParsedComponents);
     return newParsedComponents;
   }, [license_expression, keys]);
   

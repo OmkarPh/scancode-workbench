@@ -94,7 +94,6 @@ const FileInfoDash = () => {
             
             // Prepare chart for copyright holders
             const { chartData: copyrightHoldersChartData } = formatChartData(copyrightHolders, 'policy');
-            console.log("Pie chart data", copyrightHoldersChartData);
             setCopyrightHoldersData(copyrightHoldersChartData);
           });
       });

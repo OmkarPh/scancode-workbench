@@ -69,8 +69,7 @@ const Packages = () => {
       .then(async () => {
         const packages = await db.getAllPackages();
         const deps = await db.getAllDependencies();
-        console.log("Raw Packages", packages);
-        // console.log("Deps", deps);
+        // console.log("Raw Packages", packages);
 
         // const type_other = 'type-other';
         const packageMapping = new Map<string, PackageDetails>(
@@ -185,7 +184,7 @@ const Packages = () => {
           if(Object.keys(pkg.qualifiers).length)
             console.log("Qualifying:", pkg);
         })
-        console.log("Packages with deps:", parsedPackageWithDeps);
+        // console.log("Packages with deps:", parsedPackageWithDeps);
         setPackagesWithDeps(parsedPackageWithDeps);
 
         // Group packages in their respective package type group
@@ -201,7 +200,7 @@ const Packages = () => {
           packages,
         }));
         setPackageGroups(parsedPackageGroups);
-        console.log("Package groups", parsedPackageGroups);
+        // console.log("Package groups", parsedPackageGroups);
 
         setExpandedPackages([]);
 

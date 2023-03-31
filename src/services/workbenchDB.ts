@@ -229,7 +229,7 @@ export class WorkbenchDB {
   }
   
 
-  listToTreeData(fileList: FileDataNode[]) {
+  listToTreeData(fileList: FileDataNode[] & Model<FileAttributes, FileAttributes>[]) {
     const pathToIndexMap = new Map<string, number>();
     const roots: FileDataNode[] = [];
 
@@ -254,6 +254,20 @@ export class WorkbenchDB {
       } else {
         roots.push(file);
       }
+
+      // @TODO - Trying to fix rc-tree showing file icon instead of directory https://github.com/nexB/scancode-workbench/issues/542
+      // fileList.forEach(file => {
+      //   if(file.getDataValue('type').toString({}) === 'directory' && !file.children){
+      //     file.children=[];
+      //     file.isLeaf=true;
+      //   }
+      //   file.children?.forEach((file: any) => {
+      //     if(file.getDataValue('type').toString({}) === 'directory' && !file.children){
+      //       file.children=[];
+      //       file.isLeaf=true;
+      //     }
+      //   })
+      // })
     });
 
     roots.forEach(sortChildren);
@@ -295,6 +309,7 @@ export class WorkbenchDB {
 
       interface TopLevelDataFormat {
         header: unknown,
+        parsedHeader: unknown,
         packages: unknown[],
         dependencies: unknown[],
         license_detections: unknown[],
@@ -308,9 +323,9 @@ export class WorkbenchDB {
       stream
         .pipe(JSONStream.parse('files.*'))      // files field is piped to 'data' & rest to 'header'
         .on('header', (topLevelData: any) => {
-          console.log("Top level data:", topLevelData);
-          
+          // console.log("JSON top level data:", topLevelData);
           const header = topLevelData.headers ? topLevelData.headers[0] || {} : {};
+          const parsedHeader = this._parseHeader(workbenchVersion, header);
           const packages = topLevelData.packages || [];
           const dependencies = topLevelData.dependencies || [];
           const license_detections: any[] = topLevelData.license_detections || [];
@@ -323,16 +338,13 @@ export class WorkbenchDB {
           // const license_rule_references_mapping = new Map<string, unknown>(
           //   license_rule_references.map(rule_ref => [rule_ref.identifier, rule_ref])
           // );
-
+          
           TopLevelData = {
-            header, packages, dependencies, license_detections,
+            header, parsedHeader, packages, dependencies, license_detections,
             license_references_map: license_references_mapping, license_detections_map, license_references, license_rule_references
           }
           
           console.log("Parsed Top level data", TopLevelData);
-          
-          const parsedHeader = this._parseHeader(workbenchVersion, header);
-          console.log("Scan header info:", parsedHeader);
           
           files_count = Number(parsedHeader.files_count);
           promiseChain = promiseChain
@@ -352,57 +364,53 @@ export class WorkbenchDB {
             if(!targetLicenseDetection.file_regions)
               targetLicenseDetection.file_regions = [];
             if(!targetLicenseDetection.matches){
-              console.log("Got empty matches for ", targetLicenseDetection);
               targetLicenseDetection.matches = [];
             }
-            if(!detection.matches?.length)
-              return;  
-          
-            // console.log(`(Matches: ${targetLicenseDetection.matches.length}) in ${file.path}`, detection, targetLicenseDetection, "->");
+            if(detection.matches?.length){ 
+              // console.log(`(Matches: ${targetLicenseDetection.matches.length}) in ${file.path}`, detection, targetLicenseDetection, "->");
+              
+              let min_start_line = detection.matches[0].start_line;
+              let max_end_line = detection.matches[0].end_line;            
+  
+              detection.matches.forEach((match: any) => {
+                min_start_line = Math.min(min_start_line, match.start_line);
+                max_end_line = Math.max(max_end_line, match.end_line);
+                const { license_references_map } = TopLevelData;
+  
+                if(!match.keys?.length)
+                  match.keys = [];
             
-            let min_start_line = detection.matches[0].start_line;
-            let max_end_line = detection.matches[0].end_line;            
-
-            detection.matches.map((match: any) => {
-              min_start_line = Math.min(min_start_line, match.start_line);
-              max_end_line = Math.max(max_end_line, match.end_line);
-              const { license_references_map } = TopLevelData;
-
-              if(!match.keys?.length)
-                match.keys = [];
-          
-              // @TODO
-              const parsedKeys = parseKeysFromExpression(detection.license_expression);
-              // console.log("Keys:", detection.license_expression, parsedKeys);
-          
-              parsedKeys.forEach(key => {
-                const license_reference: any = license_references_map.get(key);
-          
-                if(!license_reference)  return;
-          
-                match.keys.push({
-                  key: key,
-                  licensedb_url: license_reference.licensedb_url,
-                  scancode_url: license_reference.scancode_url,
-                  spdx_license_key: license_reference.spdx_license_key,
-                  spdx_url: license_reference.spdx_url,
+                // @TODO
+                const parsedKeys = parseKeysFromExpression(detection.license_expression);
+                // console.log("Keys:", detection.license_expression, parsedKeys);
+            
+                parsedKeys.forEach(key => {
+                  const license_reference: any = license_references_map.get(key);
+            
+                  if(!license_reference)  return;
+            
+                  match.keys.push({
+                    key: key,
+                    licensedb_url: license_reference.licensedb_url,
+                    scancode_url: license_reference.scancode_url,
+                    spdx_license_key: license_reference.spdx_license_key,
+                    spdx_url: license_reference.spdx_url,
+                  });
                 });
+  
+                match.path = file.path;
+                targetLicenseDetection.matches.push(match);
               });
+              targetLicenseDetection.file_regions.push({
+                path: file.path,
+                start_line: min_start_line,
+                end_line: max_end_line,
+              })
+              // console.log(`(Matches: ${targetLicenseDetection.matches.length}) Prepared detection in ${file.path}`, detection, targetLicenseDetection);
+            }
 
-              match.path = file.path;
-              targetLicenseDetection.matches.push(match);
-            });
-            
-            targetLicenseDetection.file_regions.push({
-              path: file.path,
-              start_line: min_start_line,
-              end_line: max_end_line,
-            })
-            // console.log(`(Matches: ${targetLicenseDetection.matches.length}) Prepared detection in ${file.path}`, detection, targetLicenseDetection);
+            delete detection.matches;   // Not required, adds extra memory usage
           });
-          // @TODO - 
-          // file.license_detections = file?.license_detections.map(detection => detection.license_expression);
-
           
           if (!rootPath) {
             rootPath = file.path.split('/')[0];
@@ -521,8 +529,6 @@ export class WorkbenchDB {
       workbench_notice: 'Exported from ScanCode Workbench and provided on an "AS IS" BASIS, WITHOUT WARRANTIES\\nOR CONDITIONS OF ANY KIND, either express or implied. No content created from\\nScanCode Workbench should be considered or used as legal advice. Consult an Attorney\\nfor any legal advice.\\nScanCode Workbench is a free software analysis application from nexB Inc. and others.\\nVisit https://github.com/nexB/scancode-workbench/ for support and download.' as unknown as StringDataType,
       header_content: JSON.stringify(header, undefined, 2) as unknown as StringDataType,   // FIXME
     };
-
-    console.log("Scan header info:", parsedHeader);
     return parsedHeader;
   }
 
@@ -548,7 +554,7 @@ export class WorkbenchDB {
     //     console.log("Flat File: ", file);
     // });
     
-    return this.db.FlatFile.bulkCreate(flattenedFiles, { logging: false });
+    return this.db.FlatFile.bulkCreate(flattenedFiles as any, { logging: false });
   }
 
   _addFiles(files: any, headerId: number) {
@@ -637,7 +643,6 @@ export class WorkbenchDB {
     });
   }
 
-  // @TODO - remove / update this
   _getLicenseExpressions(files: any[]) {
     const licenseExpressions: {fileId: IntegerDataType, license_expression: StringDataType }[] = [];
     files.forEach(file => {
@@ -645,7 +650,9 @@ export class WorkbenchDB {
       licenseExpressions.push(
         ...(license_detections.map((detection: any) => ({
           fileId: file.id,
-          license_expression: detection.license_expression
+          license_expression: detection.license_expression,
+          license_keys: parseKeysFromExpression(detection.license_expression),
+          license_keys_spdx: parseKeysFromExpression(detection.license_expression),     // @TODO - No license_expression_spdx field available ...?
         })))
       )
     });

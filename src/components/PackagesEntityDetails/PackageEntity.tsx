@@ -19,10 +19,10 @@ const PackageEntity = (props: PackageEntityProps) => {
   
   console.log("Active package", activePackage);
 
-  function goToFile(path: string){
-    updateCurrentPath(path);
-    navigate(ROUTES.TABLE_VIEW);
-  }
+  // function goToFile(path: string){
+  //   // updateCurrentPath(path, 'file'); // Not two-way yet
+  //   navigate(ROUTES.TABLE_VIEW);
+  // }
   
   if(!activePackage){
     return (

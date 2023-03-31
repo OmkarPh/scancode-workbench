@@ -28,6 +28,7 @@ import {
 const { version: workbenchVersion } = packageJson;
 const { ipcRenderer } = electron;
 
+export type PathType = 'file' | 'directory';
 interface BasicValueState {
   db: WorkbenchDB | null,
   initialized: boolean,
@@ -35,6 +36,7 @@ interface BasicValueState {
 }
 interface WorkbenchContextProperties extends BasicValueState {
   currentPath: string | null,
+  currentPathType: PathType,
   startImport: () => void,
   abortImport: () => void,
   loadingStatus: null | number,
@@ -44,7 +46,7 @@ interface WorkbenchContextProperties extends BasicValueState {
   importJsonFile: (jsonFilePath: string) => void,
   updateLoadingStatus: React.Dispatch<React.SetStateAction<number | null>>,
   setColumnDefs: React.Dispatch<React.SetStateAction<ColDef[]>>,
-  updateCurrentPath: (newPath: string) => void,
+  updateCurrentPath: (newPath: string, type: PathType) => void,
   updateWorkbenchDB: (db: WorkbenchDB, sqliteFilePath: string) => void,
 }
 
@@ -55,6 +57,7 @@ export const defaultWorkbenchContextValue: WorkbenchContextProperties = {
   importedSqliteFilePath: null,
   loadingStatus: null,
   currentPath: null,
+  currentPathType: 'directory',
   jsonParser: () => null,
   sqliteParser: () => null,
   importJsonFile: () => null,
@@ -79,7 +82,13 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
     initialized: false,
     importedSqliteFilePath: null,
   });
-  const [currentPath, updateCurrentPath] = useState<string | null>(null);
+  const [currentPath, setCurrentPath] = useState<string | null>(null);
+  const [currentPathType, setCurrentPathType] = useState<PathType>('directory');
+
+  function updateCurrentPath(path: string, pathType: PathType){
+    setCurrentPath(path);
+    setCurrentPathType(pathType);
+  }
 
   const startImport = () => {
     updateLoadingStatus(0);
@@ -195,7 +204,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
 
             if(defaultPath)
-              updateCurrentPath(defaultPath);
+              updateCurrentPath(defaultPath, root.getDataValue('type').toString({}) as PathType);
 
             // Update window title
             const newlyImportedFileName = sqliteFilePath.split('\\').pop().split('/').pop();
@@ -288,7 +297,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
 
             if(defaultPath)
-              updateCurrentPath(defaultPath);
+              updateCurrentPath(defaultPath, root.getDataValue('type').toString({}) as PathType);
 
             // Update window title
             const newlyImportedFileName = jsonFilePath.split('\\').pop().split('/').pop();
@@ -362,6 +371,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
         updateLoadingStatus,
         setColumnDefs,
         currentPath,
+        currentPathType,
         jsonParser,
         sqliteParser,
         importJsonFile,

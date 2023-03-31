@@ -50,9 +50,12 @@ const FileInfoDash = () => {
 
         return db.sync.then(db => db.File.findAll({
           where: {
+            type: {
+              [Op.eq]: 'file'
+            },
             path: {
               [Op.or]: [
-                { [Op.like]: `${currentPath}`},      // Matches a file / directory.
+                { [Op.like]: `${currentPath}` },     // Matches self
                 { [Op.like]: `${currentPath}/%`}  // Matches all its children (if any).
               ]
             }
@@ -62,8 +65,8 @@ const FileInfoDash = () => {
       })
       .then(files => {
         // Prepare chart for file types
-        const fileTypes = files.map(file => file.getDataValue('mime_type') || 'No Value Detected');
-        const { chartData: fileTypesChartData } = formatChartData(fileTypes, 'file-types');
+        const fileMimeTypes = files.map(file => file.getDataValue('mime_type') || 'No Value Detected')
+        const { chartData: fileTypesChartData } = formatChartData(fileMimeTypes, 'file-types');
         setFileTypesData(fileTypesChartData);
 
         // Prepare chart for programming languages

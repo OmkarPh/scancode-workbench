@@ -42,6 +42,8 @@ export const PACKAGE_COLUMNS: ColDef[] = [
   ALL_COLUMNS.package_data_type,
   ALL_COLUMNS.package_data_name,
   ALL_COLUMNS.package_data_primary_language,
+  ALL_COLUMNS.package_data_declared_license_expression,
+  ALL_COLUMNS.package_data_declared_license_expression_spdx,
 ];
 
 interface BAR_CHART_GROUP {

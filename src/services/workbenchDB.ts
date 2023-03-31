@@ -26,6 +26,7 @@ import { DebugLogger } from '../utils/logger';
 import { FileAttributes } from './models/file';
 import { DataNode } from 'rc-tree/lib/interface';
 import { flattenFile } from './models/flatFile';
+// import { toast } from 'react-toastify';
 
 // console.log("Sqlite3", sqlite3);
 
@@ -341,7 +342,7 @@ export class WorkbenchDB {
             .then(header => headerId = Number(header.getDataValue('id')));
         })
         .on('data', function(file: any) {
-          console.log("File", file, TopLevelData, file.license_detections);
+          // console.log("File", file, TopLevelData, file.license_detections);
 
           file?.license_detections?.forEach((detection: any) => {
             const targetLicenseDetection: any = TopLevelData.license_detections_map.get(detection.license_expression);
@@ -593,7 +594,12 @@ export class WorkbenchDB {
         .then(() => this.db.ScanError.bulkCreate(this._addExtraFields(files, 'scan_errors'), options))
         .then(() => DebugLogger("scan error processor", "Processed scan-errors"))
 
-        .then(() => DebugLogger("file processor", "File processing completed !!!"));
+        .then(() => DebugLogger("file processor", "File processing completed !!!"))
+
+        .catch(err => {
+          console.error("Some error parsing data !!", err);
+          // toast("Some error parsing data !!");
+        })
     });
   }
 

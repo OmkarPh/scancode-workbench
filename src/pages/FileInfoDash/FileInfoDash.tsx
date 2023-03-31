@@ -14,6 +14,7 @@ interface ScanData {
 }
 
 import "./FileInfoDash.css";
+import { NO_VALUE_DETECTED_LABEL } from '../../constants/data';
 
 const FileInfoDash = () => {
 
@@ -65,12 +66,12 @@ const FileInfoDash = () => {
       })
       .then(files => {
         // Prepare chart for file types
-        const fileMimeTypes = files.map(file => file.getDataValue('mime_type') || 'No Value Detected')
+        const fileMimeTypes = files.map(file => file.getDataValue('mime_type') || NO_VALUE_DETECTED_LABEL)
         const { chartData: fileTypesChartData } = formatChartData(fileMimeTypes, 'file-types');
         setFileTypesData(fileTypesChartData);
 
         // Prepare chart for programming languages
-        const langs = files.map(file => file.getDataValue('programming_language') || 'No Value Detected')
+        const langs = files.map(file => file.getDataValue('programming_language') || NO_VALUE_DETECTED_LABEL)
         const { chartData: langsChartData } = formatChartData(langs, 'programming-langs');
         setProgLangsData(langsChartData);
 
@@ -83,7 +84,7 @@ const FileInfoDash = () => {
         db.sync
           .then((db) => db.Copyright.findAll({where: { fileId: fileIDs }}))
           .then(copyrights => copyrights.map(
-            copyright => copyright.getDataValue('holders') || 'No Value Detected'
+            copyright => copyright.getDataValue('holders') || NO_VALUE_DETECTED_LABEL
           ))
           .then(copyrightHolders => {
             setScanData(oldScanData => ({

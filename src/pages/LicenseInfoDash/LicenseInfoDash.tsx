@@ -14,6 +14,7 @@ interface ScanData {
 }
 
 import "./licenseInfoDash.css";
+import { NO_VALUE_DETECTED_LABEL } from '../../constants/data';
 
 const LicenseInfoDash = () => {
   const workbenchDB = useWorkbenchDB();
@@ -55,7 +56,7 @@ const LicenseInfoDash = () => {
         db.sync
           .then(db => db.LicenseExpression.findAll({where: { fileId: fileIDs }}))
           .then((expressions) => expressions.map(
-            expression => expression.getDataValue('license_expression') || 'No Value Detected'
+            expression => expression.getDataValue('license_expression') || NO_VALUE_DETECTED_LABEL
           ))
           .then((expressions) => {
             // Prepare chart for license expressions
@@ -84,7 +85,7 @@ const LicenseInfoDash = () => {
 
             return licenses;
           })
-          .then((licenses) => licenses.map(val => val.getDataValue('key') || 'No Value Detected'))
+          .then((licenses) => licenses.map(val => val.getDataValue('key') || NO_VALUE_DETECTED_LABEL))
           .then(keys => {
             // Prepare chart for license keys
             const { chartData, untrimmedLength } = formatChartData(keys, 'keys');
@@ -99,7 +100,7 @@ const LicenseInfoDash = () => {
         // Query and prepare chart for license policy
         db.sync
           .then((db) => db.LicensePolicy.findAll({where: { fileId: fileIDs }}))
-          .then((licenses) => licenses.map(val => val.getDataValue('label') || 'No Value Detected'))
+          .then((licenses) => licenses.map(val => val.getDataValue('label') || NO_VALUE_DETECTED_LABEL))
           .then(labels => {
             const { chartData } = formatChartData(labels, 'policy');
             // console.log("Result License policy formatted", chartData);

@@ -28,7 +28,7 @@ export interface PackageDataAttributes {
   subpath: StringDataType,
   purl: StringDataType,
   primary_language: StringDataType,
-  code_type: StringDataType,
+  code_type: StringDataType,  // @QUERY - Does exist ?
   description: StringDataType,
   size: IntegerDataType,
   release_date: StringDataType,
@@ -43,11 +43,12 @@ export interface PackageDataAttributes {
   vcs_repository: StringDataType,
   vcs_revision: StringDataType,
   copyright: StringDataType,
-  license_expression: StringDataType,
+  declared_license_expression: StringDataType,
+  declared_license_expression_spdx: StringDataType,
   extracted_license_statement: StringDataType,
   notice_text: StringDataType,
   dependencies: JSON_Type,
-  related_packages: JSON_Type,
+  related_packages: JSON_Type,  // @QUERY - Does exist ?
 }
 
 export default function packageDataModel(sequelize: Sequelize) {
@@ -84,11 +85,12 @@ export default function packageDataModel(sequelize: Sequelize) {
       vcs_repository: DataTypes.STRING,
       vcs_revision: DataTypes.STRING,
       copyright: DataTypes.STRING,
-      license_expression: DataTypes.STRING,
+      declared_license_expression: DataTypes.STRING,
+      declared_license_expression_spdx: DataTypes.STRING,
       extracted_license_statement: DataTypes.STRING,
       notice_text: DataTypes.STRING,
       dependencies: jsonDataType('dependencies'),
-      related_packages: jsonDataType('related_packages')
+      related_packages: jsonDataType('related_packages')    // @QUERY - Does exist ?
     },
     {
       timestamps: false

@@ -86,7 +86,9 @@ interface COLUMNS_LIST {
   package_data_type: ColDef,
   package_data_name: ColDef,
   package_data_version: ColDef,
-  package_data_license_expression: ColDef,
+  package_data_extracted_license_statement: ColDef,
+  package_data_declared_license_expression: ColDef,
+  package_data_declared_license_expression_spdx: ColDef,
   package_data_primary_language: ColDef,
   for_packages: ColDef,
   // package_data_homepage_url: ColDef,
@@ -309,9 +311,30 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     },
     width: 125,
   },
-  package_data_license_expression: {
-    field: 'package_data_license_expression',
+  package_data_extracted_license_statement: {
+    field: 'package_data_extracted_license_statement',
+    headerName: 'Package Data Extracted License Expression',
+    wrapHeaderText: true,
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
+    filterParams: {
+      filterOptions: FILTER_OPTIONS.LIST_FILTERS
+    },
+    width: 300,
+  },
+  package_data_declared_license_expression: {
+    field: 'package_data_declared_license_expression',
     headerName: 'Package Data Declared License Expression',
+    wrapHeaderText: true,
+    cellRenderer: CustomComponentKeys.ListCellRenderer,
+    filterParams: {
+      filterOptions: FILTER_OPTIONS.LIST_FILTERS
+    },
+    width: 300,
+  },
+  package_data_declared_license_expression_spdx: {
+    field: 'package_data_declared_license_expression_spdx',
+    headerName: 'Package Data Declared License Expression SPDX',
+    wrapHeaderText: true,
     cellRenderer: CustomComponentKeys.ListCellRenderer,
     filterParams: {
       filterOptions: FILTER_OPTIONS.LIST_FILTERS

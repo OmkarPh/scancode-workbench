@@ -92,9 +92,9 @@ const PackageEntity = (props: PackageEntityProps) => {
             //   key={datafile_path}
             //   onClick={() => goToFile(datafile_path)}
             // >
-            <>
+            <React.Fragment key={datafile_path}>
               { datafile_path }
-            </>
+            </React.Fragment>
             // </a>
           ))
         }

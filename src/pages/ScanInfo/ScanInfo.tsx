@@ -45,7 +45,6 @@ function parseIfValidJson(str: unknown){
 const ScanInfo = () => {
   const workbenchDB = useWorkbenchDB();
   const [parsedScanInfo, setParsedScanInfo] = useState<ScanInfo | null>(null);
-  console.log("Parsed scan info", parsedScanInfo);
   
   useEffect(() => {
     const { db, initialized, currentPath } = workbenchDB;
@@ -58,7 +57,7 @@ const ScanInfo = () => {
         db.getScanInfo()
           .then(rawInfo => {
             console.log("Raw scan info:", rawInfo);
-            setParsedScanInfo({
+            const newParsedScanInfo: ScanInfo = {
               tool_name: rawInfo.getDataValue('tool_name').toString({}) || "",
               tool_version: rawInfo.getDataValue('tool_version').toString({}) || "",
               notice: rawInfo.getDataValue('notice').toString({}) || "",
@@ -76,7 +75,9 @@ const ScanInfo = () => {
               workbench_version: rawInfo.getDataValue('workbench_version')?.toString({}) || "",
               workbench_notice: rawInfo.getDataValue('workbench_notice')?.toString({}) || "",
               raw_header_content: rawInfo.getDataValue('header_content')?.toString({}) || "",
-            })
+            };
+            console.log("Parsed scan info:", newParsedScanInfo);
+            setParsedScanInfo(newParsedScanInfo);
           })
       });
   }, [workbenchDB]);

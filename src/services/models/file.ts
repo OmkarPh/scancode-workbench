@@ -20,7 +20,6 @@ import { jsonDataType, JSON_Type } from './databaseUtils';
 export interface FileAttributes {
   id: IntegerDataType,
   path: string;
-  fileId: IntegerDataType,
   parent: StringDataType,
   type: StringDataType,
   name: StringDataType,
@@ -63,7 +62,6 @@ export default function fileModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      fileId: DataTypes.INTEGER,
       parent: DataTypes.STRING,
       type: DataTypes.STRING,
       name: DataTypes.STRING,

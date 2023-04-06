@@ -49,6 +49,7 @@ const LICENSE_COLUMN_GROUP: ColDef[] = [
   ALL_COLUMNS.percentage_of_license_text,
   ALL_COLUMNS.license_policy,
   ALL_COLUMNS.license_clues,
+  ALL_COLUMNS.license_detections,
 ];
 
 const ORIGIN_COLUMN_GROUP: ColDef[] = [

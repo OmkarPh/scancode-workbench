@@ -190,7 +190,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
           .then(db => db.File.findOne({ where: { parent: '#' }}))
           .then(root => {
             if(!root){
-              console.error("Root directory not found !!!!", root);
+              console.error("Root path not found !!!!", root);
               return;
             }
 
@@ -233,7 +233,7 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
         }
         console.error("Err trying to import sqlite:");
         console.error(err);
-        toast(`Unexpected error while importing json \nPlease check console for more info`, {
+        toast(`Unexpected error while finalising json import \nPlease check console for more info`, {
           type: 'error'
         });
         abortImport();
@@ -286,13 +286,12 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
           .then(db => db.File.findOne({ where: { parent: '#' }}))
           .then(root => {
             if(!root){
-              console.error("Root directory not found !!!!");
+              console.error("Root path not found !!!!");
               console.error("Root:", root);
               abortImport();
               return;
             }
             const defaultPath = root.getDataValue('path');
-            // console.log("Default path (Root dir): ", defaultPath);
 
             updateWorkbenchDB(newWorkbenchDB, sqliteFilePath)
 
@@ -326,10 +325,26 @@ export const WorkbenchDBProvider = (props: React.PropsWithChildren<Record<string
 
     ipcRenderer.on(NAVIGATION_CHANNEL, (_, message: NAVIGATION_CHANNEL_MESSAGE) => navigate(message));
     ipcRenderer.on(IMPORT_REPLY_CHANNEL.JSON, (_, message: JSON_IMPORT_REPLY_FORMAT) => {
-      jsonParser(message.jsonFilePath, message.sqliteFilePath);
+      try{
+        jsonParser(message.jsonFilePath, message.sqliteFilePath);
+      } catch (err) {
+        console.log(`some error importing json - ${message.jsonFilePath}`, err);
+        abortImport();
+        toast(`Unexpected error while importing json \nPlease check console for more info`, {
+          type: 'error'
+        });
+      }
     });
     ipcRenderer.on(IMPORT_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_IMPORT_REPLY_FORMAT) => {
-      sqliteParser(message.sqliteFilePath);
+      try{
+        sqliteParser(message.sqliteFilePath);
+      } catch (err) {
+        console.log(`some error importing sqlite - ${message.sqliteFilePath}`, err);
+        abortImport();
+        toast(`Unexpected error while importing sqlite \nPlease check console for more info`, {
+          type: 'error'
+        });
+      }
     });
     ipcRenderer.on(SAVE_REPLY_CHANNEL.SQLITE, (_, message: SQLITE_SAVE_REPLY_FORMAT) => {
       if(!value.db || !value.initialized){

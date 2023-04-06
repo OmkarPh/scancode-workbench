@@ -27,6 +27,7 @@ import './fontawesome';
 import 'rc-tree/assets/index.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-tooltip/dist/react-tooltip.css'
 
 import './app.css';
 import './dashStyles.css';

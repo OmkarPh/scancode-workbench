@@ -1,5 +1,5 @@
 import { ColDef } from "ag-grid-community";
-import { LicenseExpressionRenderer, UrlRenderer } from "../../pages/TableView/CustomCellRenderers";
+import { MatchLicenseExpressionRenderer, UrlRenderer } from "../../pages/TableView/CustomCellRenderers";
 
 export const DEFAULT_MATCHES_COL_DEF: ColDef = {
   sortable: true,
@@ -14,14 +14,14 @@ const MINI_FIELD_WIDTH = 90;
 export const DetectionMatchesCols: ColDef[] = [
   {
     headerName: 'License expression',
-    field: 'key',
-    cellRenderer: LicenseExpressionRenderer,
+    field: 'license_expression',
+    cellRenderer: MatchLicenseExpressionRenderer,
     width: 270,
   },
   {
     headerName: 'SPDX License expression',
-    field: 'spdx_license_key',
-    cellRenderer: LicenseExpressionRenderer,
+    field: 'license_expression_spdx',
+    cellRenderer: MatchLicenseExpressionRenderer,
     cellRendererParams: {
       spdxLicense: true,
     },

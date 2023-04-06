@@ -117,20 +117,25 @@ export function showErrorDialog(err: ErrorInfo){
 }
 
 export function setCurrentFileTitle(mainWindow: BrowserWindow, title: string){
+  if(!mainWindow){
+    console.log("Main window not found:", title, mainWindow);
+    return;
+  }
   const titleString = "Scancode Workbench" + (title ? ` - ${title}` : "");
   mainWindow.setTitle(titleString);
 }
 
-export function setUpIpcListeners(mainWindow: BrowserWindow){
-  ipcMain.on(OPEN_DIALOG_CHANNEL.JSON, () => importJsonFile(mainWindow));
+export function setUpGlobalIpcListeners(){
+  const getCurrentWindow = () => BrowserWindow.getFocusedWindow();
+  ipcMain.on(OPEN_DIALOG_CHANNEL.JSON, () => importJsonFile(getCurrentWindow()));
   ipcMain.on(
     OPEN_DIALOG_CHANNEL.SQLITE_PATH_FOR_JSON,
     (_, message: SQLITE_PATH_FOR_JSON_REQUEST_FORMAT) => 
-      chooseSqlitePathForJsonImport(mainWindow, message.jsonFilePath)
+      chooseSqlitePathForJsonImport(getCurrentWindow(), message.jsonFilePath)
   );
-  ipcMain.on(OPEN_DIALOG_CHANNEL.SQLITE, () => openSqliteFile(mainWindow));
-  ipcMain.on(OPEN_DIALOG_CHANNEL.SAVE_SQLITE, () => saveSqliteFile(mainWindow));
-  ipcMain.on(UTIL_CHANNEL.SET_CURRENT_FILE_TITLE, (_, title: string) => setCurrentFileTitle(mainWindow, title));
+  ipcMain.on(OPEN_DIALOG_CHANNEL.SQLITE, () => openSqliteFile(getCurrentWindow()));
+  ipcMain.on(OPEN_DIALOG_CHANNEL.SAVE_SQLITE, () => saveSqliteFile(getCurrentWindow()));
+  ipcMain.on(UTIL_CHANNEL.SET_CURRENT_FILE_TITLE, (_, title: string) => setCurrentFileTitle(getCurrentWindow(), title));
   ipcMain.on(OPEN_ERROR_DIALOG_CHANNEL, (_, err: ErrorInfo) => showErrorDialog(err));
 }
 

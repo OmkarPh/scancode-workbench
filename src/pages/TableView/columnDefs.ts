@@ -3,19 +3,28 @@ import { ColDef, IFilterOptionDef, ValueFormatterParams } from "ag-grid-communit
 import { ROUTES } from "../../constants/routes";
 
 import {
+  FileLicenseDetectionsRenderer,
   ListCellRenderer,
+  MatchLicenseExpressionRenderer,
+  UrlRenderer,
   UrlListCellRenderer,
 } from './CustomCellRenderers';
 
 
 enum CustomComponentKeys {
+  UrlRenderer = 'UrlRenderer',
   ListCellRenderer = 'ListCellRenderer',
   UrlListCellRenderer = 'UrlListCellRenderer',
+  LicenseExpressionRenderer = "LicenseExpressionRenderer",
+  FileLicenseDetectionsRenderer = "FileLicenseDetectionsRenderer",
 }
 
 export const frameworkComponents = {
+  [CustomComponentKeys.UrlRenderer]: UrlRenderer,
   [CustomComponentKeys.ListCellRenderer] : ListCellRenderer,
   [CustomComponentKeys.UrlListCellRenderer]: UrlListCellRenderer,
+  [CustomComponentKeys.LicenseExpressionRenderer]: MatchLicenseExpressionRenderer,
+  [CustomComponentKeys.FileLicenseDetectionsRenderer]: FileLicenseDetectionsRenderer,
 };
 
 export type ISimpleFilterModelType = 
@@ -79,6 +88,7 @@ interface COLUMNS_LIST {
   percentage_of_license_text: ColDef,
   license_policy: ColDef,
   license_clues: ColDef,
+  license_detections: ColDef,
 
   email: ColDef,
   url: ColDef,
@@ -238,10 +248,10 @@ export const ALL_COLUMNS: COLUMNS_LIST = {
     headerName: "License text %",
     width: 120,
   },
-  // license_detections: {
-  //   field: 'license_detections',
-  //   cellRenderer
-  // },
+  license_detections: {
+    field: 'license_detections',
+    cellRenderer: CustomComponentKeys.FileLicenseDetectionsRenderer,
+  },
   license_policy: {
     field: 'license_policy',
     headerName: 'License Policy',

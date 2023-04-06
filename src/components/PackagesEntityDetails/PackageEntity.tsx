@@ -1,8 +1,8 @@
 import ReactJson from '@microlink/react-json-view';
-import React from 'react'
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../constants/routes';
-import { useWorkbenchDB } from '../../contexts/workbenchContext';
+import React, { useEffect } from 'react'
+// import { useNavigate } from 'react-router-dom';
+// import { ROUTES } from '../../constants/routes';
+// import { useWorkbenchDB } from '../../contexts/workbenchContext';
 import { DependencyDetails, PackageDetails } from '../../pages/Packages/packageDefinitions'
 
 import '../../styles/entityCommonStyles.css';
@@ -14,10 +14,12 @@ interface PackageEntityProps {
 }
 const PackageEntity = (props: PackageEntityProps) => {
   const { goToDependency, package: activePackage} = props;
-  const navigate = useNavigate();
-  const { updateCurrentPath } = useWorkbenchDB();
+  // const navigate = useNavigate();
+  // const { updateCurrentPath } = useWorkbenchDB();
   
-  console.log("Active package", activePackage);
+  useEffect(() => {
+    console.log("Active package", activePackage);
+  }, [activePackage])
 
   // function goToFile(path: string){
   //   // updateCurrentPath(path, 'file'); // Not two-way yet

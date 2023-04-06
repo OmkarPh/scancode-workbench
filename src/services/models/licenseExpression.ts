@@ -21,6 +21,7 @@ export interface LicenseExpressionAttributes {
   id: IntegerDataType,
   fileId: IntegerDataType,
   license_expression: StringDataType
+  license_expression_spdx: StringDataType,
   license_keys: JSON_Type,
   license_keys_spdx: JSON_Type,
 }
@@ -40,6 +41,7 @@ export default function licenseExpressionModel(sequelize: Sequelize) {
       },
       fileId: DataTypes.INTEGER,
       license_expression: DataTypes.STRING,
+      license_expression_spdx: DataTypes.STRING,
       license_keys: jsonDataType('license_keys'),
       license_keys_spdx: jsonDataType('license_keys_spdx'),
     },

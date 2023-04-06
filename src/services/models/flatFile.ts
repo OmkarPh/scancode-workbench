@@ -20,9 +20,9 @@ import { JSON_Type, jsonDataType, parentPath } from './databaseUtils';
 
 
 export interface FlatFileAttributes {
-  path: string;
   id: IntegerDataType,
   fileId: IntegerDataType,
+  path: string;
   parent: StringDataType,
   copyright_statements: JSON_Type,
   copyright_holders: JSON_Type,
@@ -43,6 +43,7 @@ export interface FlatFileAttributes {
   url: JSON_Type,
   url_start_line: JSON_Type,
   url_end_line: JSON_Type,
+
   type: StringDataType,
   name: StringDataType,
   extension: StringDataType,
@@ -103,12 +104,12 @@ export default function flatFileModel(sequelize: Sequelize) {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      fileId: DataTypes.INTEGER,
       path: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false
       },
-      fileId: DataTypes.INTEGER,
       parent: {type: DataTypes.STRING, defaultValue: ''},
       copyright_statements: jsonDataType('copyright_statements'),
       copyright_holders: jsonDataType('copyright_holders'),
@@ -129,6 +130,7 @@ export default function flatFileModel(sequelize: Sequelize) {
       url: jsonDataType('url'),
       url_start_line: jsonDataType('url_start_line'),
       url_end_line: jsonDataType('url_end_line'),
+
       type: {type: DataTypes.STRING, defaultValue: ''},
       name: {type: DataTypes.STRING, defaultValue: ''},
       extension: {type: DataTypes.STRING, defaultValue: ''},
@@ -148,6 +150,7 @@ export default function flatFileModel(sequelize: Sequelize) {
       is_source: DataTypes.BOOLEAN,
       is_script: DataTypes.BOOLEAN,
       scan_errors: jsonDataType('scan_errors'),
+      
       package_data_type: jsonDataType('package_data_type'),
       package_data_namespace: jsonDataType('package_data_dataspace'),
       package_data_name: jsonDataType('package_data_name'),
@@ -189,6 +192,8 @@ export default function flatFileModel(sequelize: Sequelize) {
 //  * Flatten ScanCode results data to load into database
 //  *
 interface FlattenedFile {
+  id: number,
+  fileId: number,
   path: string;
   parent: StringDataType,
   copyright_statements: unknown[],
@@ -210,6 +215,7 @@ interface FlattenedFile {
   url: unknown[],
   url_start_line: unknown[],
   url_end_line: unknown[],
+
   type: StringDataType,
   name: StringDataType,
   extension: StringDataType,
@@ -261,6 +267,8 @@ interface FlattenedFile {
 }
 export function flattenFile(file: any): FlattenedFile { 
   return {
+    id: file.id,
+    fileId: file.id,
     path: file.path,
     parent: parentPath(file.path) as any,
     copyright_statements: getCopyrightValues(file.copyrights, 'copyright'),

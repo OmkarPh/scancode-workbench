@@ -29,7 +29,7 @@ ChartJS.register(
 import './chartView.css';
 
 const BAR_HEIGHT = 30;
-const directoryAttributes = ['package_data_type', 'package_data_name', 'package_data_primary_language'];
+const directoryAttributes = ['type', 'package_data_type', 'package_data_name', 'package_data_primary_language'];
 
 const ChartView = () => {
   const { importedSqliteFilePath, db, initialized, currentPath} = useWorkbenchDB();
@@ -52,7 +52,7 @@ const ChartView = () => {
       }
     };
 
-    if(directoryAttributes.includes(selectedAttribute)){
+    if(!directoryAttributes.includes(selectedAttribute)){
       where.type = {
         [Op.ne]: 'directory'
       }

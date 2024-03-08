@@ -54,6 +54,10 @@ jobs:
         run: mkdir -p dist
       - name: Build Workbench & create release archive for ${{ matrix.os }}
         run: npm run publish
+      # Fix macos error due to extended attributes
+      - name: Fix extended attributes on macos
+        if: matrix.os == 'macos-14' || matrix.os == 'macos-latest'
+        run: xattr -c out/ScanCode-Workbench-4.0.2-darwin-arm64/ScanCode-Workbench-4.0.2.app
       - name: Create source code archive (including node_modules)
         run: npm run srcarchive
       - name: Verify Generated archives in dist/
